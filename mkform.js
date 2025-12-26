@@ -1,4 +1,4 @@
-// src/weba/renderer.ts
+// src/form/renderer.ts
 var Renderers = {
   _context: { masterData: {} },
   setMasterData(data) {
@@ -197,6 +197,10 @@ var Renderers = {
     if (type === "checkbox") {
       return `<input type="checkbox" class="${commonClass}" ${dataAttr} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
     }
+    if (type === "autonum") {
+      const classList = commonClass + " auto-num";
+      return `<input type="number" readonly class="${classList}" ${dataAttr} style="background:transparent; border:none; text-align:center; width:100%; font-weight:bold; cursor:default; ${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
+    }
     let suggestAttr = "";
     let suggestClass = "";
     if ((attrs || "").includes("suggest:column")) {
@@ -225,7 +229,7 @@ var Renderers = {
   }
 };
 
-// src/weba/parser.ts
+// src/form/parser.ts
 function parseMarkdown(text) {
   const lines = text.split(`
 `);
@@ -443,6 +447,12 @@ function parseMarkdown(text) {
     appendHtml("</div></div>");
   if (currentTabId)
     appendHtml("</div>");
+  const toolbarHtml = `<div class="no-print form-toolbar" style="display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
+            <button class="primary" onclick="window.clearData()" style="margin: 0; background-color: #999;" data-i18n="clear_btn">Clear</button>
+            <button class="primary" onclick="window.saveDraft()" style="margin: 0;" data-i18n="work_save_btn">Save Draft</button>
+            <button class="primary" onclick="window.signAndDownload()" style="margin: 0; background-color: #2e7d32;" data-i18n="sign_btn">Sign & Save</button>
+            <button class="primary" onclick="window.submitDocument()" style="margin: 0; background-color: #d9534f;" data-i18n="submit_btn">Submit HTML</button>
+        </div>`;
   if (tabs.length > 0) {
     let navHtml = '<div class="tabs-nav">';
     tabs.forEach((tab, idx) => {
@@ -453,6 +463,7 @@ function parseMarkdown(text) {
     navHtml += `<div class="no-print" style="display: flex; gap: 10px; align-items: center;">
             <button class="primary" onclick="window.clearData()" style="margin: 0; background-color: #999;" data-i18n="clear_btn">Clear</button>
             <button class="primary" onclick="window.saveDraft()" style="margin: 0;" data-i18n="work_save_btn">Save Draft</button>
+            <button class="primary" onclick="window.signAndDownload()" style="margin: 0; background-color: #2e7d32;" data-i18n="sign_btn">Sign & Save</button>
             <button class="primary" onclick="window.submitDocument()" style="margin: 0; background-color: #d9534f;" data-i18n="submit_btn">Submit</button>
         </div>`;
     navHtml += "</div>";
@@ -462,12 +473,12 @@ function parseMarkdown(text) {
       html = navHtml + mainContentHtml;
     }
   } else {
-    html = mainContentHtml;
+    html = mainContentHtml + toolbarHtml;
   }
   return { html, jsonStructure };
 }
 
-// src/weba/client/embed.ts
+// src/form/client/embed.ts
 var CLIENT_BUNDLE = `// src/weba/client/calculator.ts
 class Calculator {
   runAutoCopy() {
@@ -741,8 +752,26 @@ class UIManager {
         el.textContent = dict[key];
     });
   }
+  initTables() {
+    document.querySelectorAll(".data-table.dynamic tbody").forEach((tbody) => {
+      this.renumberRows(tbody);
+    });
+  }
+  renumberRows(tbody) {
+    const rows = tbody.querySelectorAll("tr");
+    rows.forEach((row, index) => {
+      const num = index + 1;
+      row.querySelectorAll(".auto-num").forEach((input) => {
+        if (input.value != num) {
+          input.value = num.toString();
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      });
+    });
+  }
   removeTableRow(btn) {
     const tr = btn.closest("tr");
+    const tbody = tr.parentElement;
     if (tr.classList.contains("template-row")) {
       tr.querySelectorAll("input").forEach((inp) => {
         if (inp.type === "checkbox")
@@ -752,6 +781,8 @@ class UIManager {
       });
     } else {
       tr.remove();
+      if (tbody)
+        this.renumberRows(tbody);
       this.calc.recalculate();
       this.data.updateJsonLd();
     }
@@ -788,6 +819,8 @@ class UIManager {
       }
     });
     tbody.appendChild(newRow);
+    this.renumberRows(tbody);
+    this.calc.recalculate();
   }
   switchTab(btn, tabId) {
     document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
@@ -827,6 +860,7 @@ function initRuntime() {
   };
   data.restoreFromLS();
   ui.applyI18n();
+  ui.initTables();
   calc.recalculate();
   let tm;
   document.addEventListener("input", (e) => {
@@ -1081,7 +1115,7 @@ initRuntime();
 search.init();
 `;
 
-// src/weba/generator.ts
+// src/form/generator.ts
 var BASE_CSS = `
 body { font-family: sans-serif; background: #eee; margin: 0; padding: 20px; }
 .page { margin: 0 auto; background: white; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 20mm; max-width: 100%; box-sizing: border-box; }
@@ -1355,7 +1389,7 @@ function generateAggregatorHtml(markdown) {
 </html>`;
 }
 
-// src/weba/sample.ts
+// src/form/sample.ts
 var DEFAULT_MARKDOWN_EN = `# Simple Search & Calc Test
 ---
 
@@ -1416,9 +1450,9 @@ var DEFAULT_MARKDOWN_JA = `# 請求書（サンプル）
 | 高級メロン | 5000 |
 `;
 
-// src/weba/browser_maker.ts
+// src/form/browser_maker.ts
 function updatePreview() {
-  console.log("Web/A Maker v2.3");
+  console.log("Web/A Maker v3.0");
   const editor = document.getElementById("editor");
   const preview = document.getElementById("preview");
   if (!editor || !preview)

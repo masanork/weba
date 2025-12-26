@@ -48,7 +48,7 @@ var Renderers = {
     }
     return extra;
   },
-  text(key, label, attrs) {
+  text: function(key, label, attrs) {
     const valMatch = (attrs || "").match(/val="([^"]+)"/) || (attrs || "").match(/val='([^']+)'/) || (attrs || "").match(/val=([^ ]+)/);
     const placeholderMatch = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
     const hintMatch = (attrs || "").match(/hint="([^"]+)"/) || (attrs || "").match(/hint='([^']+)'/);
@@ -62,11 +62,11 @@ var Renderers = {
             ${hint}
         </div>`;
   },
-  number(key, label, attrs) {
+  number: function(key, label, attrs) {
     const placeholderMatch = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
     const hintMatch = (attrs || "").match(/hint="([^"]+)"/) || (attrs || "").match(/hint='([^']+)'/);
     const placeholder = placeholderMatch ? placeholderMatch[1] : "";
-    const hint = hintMatch ? `<div class="form-hint">${this.formatHint(hintMatch[1])}</div>` : "";
+    const hint = hintMatch ? `<div class="form-row"><div class="form-hint">${this.formatHint(hintMatch[1])}</div></div>` : "";
     return `
         <div class="form-row">
             <label class="form-label">${this.escapeHtml(label)}</label>
@@ -74,14 +74,14 @@ var Renderers = {
             ${hint}
         </div>`;
   },
-  date(key, label, attrs) {
+  date: function(key, label, attrs) {
     return `
         <div class="form-row">
             <label class="form-label">${this.escapeHtml(label)}</label>
             <input type="date" class="form-input" data-json-path="${key}" style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>
         </div>`;
   },
-  textarea(key, label, attrs) {
+  textarea: function(key, label, attrs) {
     const placeholderMatch = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
     const hintMatch = (attrs || "").match(/hint="([^"]+)"/) || (attrs || "").match(/hint='([^']+)'/);
     const placeholder = placeholderMatch ? placeholderMatch[1] : "";
@@ -93,19 +93,19 @@ var Renderers = {
             ${hint}
         </div>`;
   },
-  radioStart(key, label, attrs) {
+  radioStart: function(key, label, attrs) {
     return `
         <div class="form-row vertical" style="${this.getStyle(attrs)}">
             <label class="form-label">${this.escapeHtml(label)}</label>
             <div class="radio-group" style="padding-left: 10px;">`;
   },
-  radioOption(name, val, label, checked) {
+  radioOption: function(name, val, label, checked) {
     return `
             <label style="display:block; margin-bottom:5px;">
                 <input type="radio" name="${name}" value="${this.escapeHtml(val)}" ${checked ? "checked" : ""}> ${this.escapeHtml(label)}
             </label>`;
   },
-  calc(key, label, attrs) {
+  calc: function(key, label, attrs) {
     const formulaMatch = (attrs || "").match(/formula="([^"]+)"/) || (attrs || "").match(/formula='([^']+)'/);
     const formula = formulaMatch ? formulaMatch[1] : "";
     return `
@@ -114,8 +114,8 @@ var Renderers = {
             <input type="text" readonly class="form-input" data-json-path="${key}" data-formula="${this.escapeHtml(formula)}" style="background:#f9f9f9; ${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>
         </div>`;
   },
-  search(key, label, attrs) {
-    const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_\-\u0080-\uFFFF]+)/);
+  search: function(key, label, attrs) {
+    const srcMatch = (attrs || "").match(/src:([^\s)]+)/);
     const placeholderMatch = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
     const hintMatch = (attrs || "").match(/hint="([^"]+)"/) || (attrs || "").match(/hint='([^']+)'/);
     const srcKey = srcMatch ? srcMatch[1] : "";
@@ -357,12 +357,24 @@ function parseMarkdown(text) {
         if (type === "radio") {
           currentRadioGroup = { key, label: cleanLabel, attrs };
           appendHtml(Renderers.radioStart(key, cleanLabel, attrs));
-          if (typeof Renderers[type] === "function") {
-            appendHtml(Renderers[type](key, cleanLabel, attrs));
-          } else {
-            appendHtml(`<p style="color:red">Unknown type: ${type}</p>`);
-          }
+        } else if (type === "text")
+          appendHtml(Renderers.text(key, cleanLabel, attrs));
+        else if (type === "number")
+          appendHtml(Renderers.number(key, cleanLabel, attrs));
+        else if (type === "date")
+          appendHtml(Renderers.date(key, cleanLabel, attrs));
+        else if (type === "textarea")
+          appendHtml(Renderers.textarea(key, cleanLabel, attrs));
+        else if (type === "search")
+          appendHtml(Renderers.search(key, cleanLabel, attrs));
+        else if (type === "calc")
+          appendHtml(Renderers.calc(key, cleanLabel, attrs));
+        else if (type === "datalist")
+          appendHtml(Renderers.renderInput(type, key, attrs));
+        else if (Renderers[type]) {
+          appendHtml(Renderers[type](key, cleanLabel, attrs));
         } else {
+          console.warn(`Unknown type: ${type}`, Object.keys(Renderers));
           appendHtml(`<p style="color:red">Unknown type: ${type}</p>`);
         }
       }
@@ -723,13 +735,19 @@ function runtime() {
   console.log("Web/A Runtime Initialized");
   function initSearch() {
     console.log("Initializing Search...");
-    const normalize = (s) => {
-      if (!s)
+    if (w.generatedJsonStructure && w.generatedJsonStructure.masterData) {
+      const keys = Object.keys(w.generatedJsonStructure.masterData);
+      console.log("Master Data Keys available:", keys.join(", "));
+    }
+    const normalize = (val) => {
+      if (!val)
         return "";
-      let n = s.trim();
+      let n = val.toString().toLowerCase();
+      n = n.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => {
+        return String.fromCharCode(s.charCodeAt(0) - 65248);
+      });
       n = n.replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 65248));
-      n = n.replace(/\s+/g, " ").toLowerCase();
-      return n;
+      return n.trim();
     };
     const clean = (s) => {
       if (!s)
@@ -738,6 +756,10 @@ function runtime() {
       n = n.replace(/(株式会社|有限会社|合同会社|一般社団法人|公益社団法人|npo法人|学校法人|社会福祉法人)/g, "");
       n = n.replace(/(\(株\)|\(有\)|\(同\))/g, "");
       return n.trim();
+    };
+    const toIndex = (raw) => {
+      const parsed = parseInt(raw || "", 10);
+      return Number.isFinite(parsed) ? parsed - 1 : -1;
     };
     const getScore = (query, targetParsed, targetOriginal) => {
       const q = clean(query);
@@ -797,31 +819,44 @@ function runtime() {
         const srcKey = input.dataset.masterSrc;
         if (!srcKey)
           return;
+        const labelIdx = toIndex(input.dataset.masterLabelIndex);
+        const valueIdx = toIndex(input.dataset.masterValueIndex);
         const query = input.value;
         if (!query) {
           hideSuggestions();
           return;
         }
+        console.log(`Search: Input '${query}', srcKey: '${srcKey}'`);
         const master = w.generatedJsonStructure.masterData;
-        if (!master || !master[srcKey])
+        if (!master || !master[srcKey]) {
+          console.warn(`Search: masterData key '${srcKey}' not found. Available:`, Object.keys(master || {}));
           return;
+        }
         const allRows = master[srcKey];
-        const dataRows = allRows.slice(1);
         const hits = [];
-        dataRows.forEach((row, originalIdx) => {
-          const val = row[0] || "";
-          const score = getScore(query, val, val);
-          if (score > 0) {
-            hits.push({ val, row, score, idx: originalIdx });
+        const normQuery = normalize(query);
+        allRows.forEach((row, idx) => {
+          if (idx === 0)
+            return;
+          const match = row.some((col) => {
+            return normalize(col || "").includes(normQuery);
+          });
+          if (match) {
+            const labelVal = labelIdx >= 0 ? row[labelIdx] || "" : "";
+            const valueVal = valueIdx >= 0 ? row[valueIdx] || "" : "";
+            const val = valueIdx >= 0 ? valueVal : labelIdx >= 0 ? labelVal : row[0] || "";
+            hits.push({ val, row, label: labelVal, score: 10, idx });
           }
         });
+        console.log(`Search: Found ${hits.length} matches for '${query}' (norm: '${normQuery}') in '${srcKey}'`);
         hits.sort((a, b) => b.score - a.score);
         const topHits = hits.slice(0, 10);
         if (topHits.length > 0) {
           let html = "";
           topHits.forEach((h) => {
             const rowJson = w.escapeHtml(JSON.stringify(h.row));
-            html += `<div class="suggestion-item" data-val="${w.escapeHtml(h.val)}" data-row="${rowJson}" style="padding:8px; cursor:pointer; border-bottom:1px solid #eee; font-size:14px; color:#333;">${w.escapeHtml(h.val)}</div>`;
+            const displayLabel = labelIdx >= 0 ? h.label || h.row.join(" : ") : h.row.join(" : ");
+            html += `<div class="suggestion-item" data-val="${w.escapeHtml(h.val)}" data-row="${rowJson}" style="padding:8px; cursor:pointer; border-bottom:1px solid #eee; font-size:14px; color:#333;">${w.escapeHtml(displayLabel)}</div>`;
           });
           const box = getGlobalBox();
           box.innerHTML = html;
@@ -855,29 +890,65 @@ function runtime() {
       if (e.target.classList.contains("suggestion-item")) {
         const item = e.target;
         if (activeSearchInput) {
-          activeSearchInput.value = item.dataset.val;
+          let searchInputFilled = false;
+          const originalVal = item.dataset.val;
           try {
             const rowData = JSON.parse(item.dataset.row || "[]");
+            console.log("Auto-Fill: Selected Row:", rowData);
             const srcKey = activeSearchInput.dataset.masterSrc;
             const masterHeaders = srcKey ? w.generatedJsonStructure.masterData[srcKey][0] : [];
+            console.log("Auto-Fill: Master Headers:", masterHeaders);
             if (masterHeaders.length > 0 && rowData.length > 0) {
               const tr = activeSearchInput.closest("tr");
               if (tr) {
                 const inputs = Array.from(tr.querySelectorAll("input, select, textarea"));
+                console.log("Auto-Fill: Inputs in Form Row:", inputs.map((i) => i.dataset.baseKey || i.dataset.jsonPath));
                 masterHeaders.forEach((header, idx) => {
-                  if (idx === 0)
-                    return;
                   if (!header)
                     return;
                   const targetVal = rowData[idx];
                   const keyMatch = normalize(header);
+                  console.log(`Auto-Fill: Checking '${header}' (norm: '${keyMatch}') against inputs...`);
                   const targetInput = inputs.find((inp) => {
                     const k = inp.dataset.baseKey || inp.dataset.jsonPath;
-                    return k && normalize(k) === keyMatch;
+                    let labelText = "";
+                    const td = inp.closest("td");
+                    if (td) {
+                      const tr2 = td.parentElement;
+                      const index = Array.from(tr2.children).indexOf(td);
+                      const table = tr2.closest("table");
+                      if (table) {
+                        const th = table.querySelectorAll("thead th")[index] || table.querySelectorAll("tr:first-child th")[index];
+                        if (th)
+                          labelText = normalize(th.textContent || "");
+                      }
+                    } else {
+                      const rowDiv = inp.closest(".form-row");
+                      if (rowDiv) {
+                        const labelEl = rowDiv.querySelector(".form-label");
+                        if (labelEl)
+                          labelText = normalize(labelEl.textContent || "");
+                      }
+                    }
+                    const ph = normalize(inp.getAttribute("placeholder") || "");
+                    const matchKey = k && normalize(k) === keyMatch;
+                    const matchPh = ph === keyMatch;
+                    const matchLabel = labelText === keyMatch;
+                    if (header === "ベンダー名" || header === "区") {}
+                    if (matchKey || matchPh || matchLabel)
+                      return true;
+                    return false;
                   });
                   if (targetInput) {
+                    console.log(`Auto-Fill: Match found for '${header}' -> Filling '${targetVal}'`);
                     targetInput.value = targetVal || "";
                     targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+                    if (targetInput === activeSearchInput) {
+                      searchInputFilled = true;
+                      console.log("Auto-Fill: Search input itself was filled via mapping.");
+                    }
+                  } else {
+                    console.log(`Auto-Fill: No match for '${header}'`);
                   }
                 });
               }
@@ -885,7 +956,10 @@ function runtime() {
           } catch (err) {
             console.error("Auto-fill error", err);
           }
-          activeSearchInput.dispatchEvent(new Event("input", { bubbles: true }));
+          if (!searchInputFilled) {
+            activeSearchInput.value = originalVal || "";
+            activeSearchInput.dispatchEvent(new Event("input", { bubbles: true }));
+          }
           hideSuggestions();
         }
       }

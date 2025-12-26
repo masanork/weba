@@ -592,7 +592,7 @@ function runtime() {
           return parseFloat(staticInput.value);
         return 0;
       };
-      let evalStr = formula.replace(/SUM\(([a-zA-Z0-9_]+)\)/g, (_, key) => {
+      let evalStr = formula.replace(/SUM\(([a-zA-Z0-9_\-\u0080-\uFFFF]+)\)/g, (_, key) => {
         let sum = 0;
         const scope = table || document;
         scope.querySelectorAll(`[data-base-key="${key}"], [data-json-path="${key}"]`).forEach((inp) => {
@@ -602,7 +602,7 @@ function runtime() {
         });
         return sum;
       });
-      evalStr = evalStr.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, (match) => {
+      evalStr = evalStr.replace(/([a-zA-Z_\u0080-\uFFFF][a-zA-Z0-9_\-\u0080-\uFFFF]*)/g, (match) => {
         if (["Math", "round", "floor", "ceil", "abs", "min", "max"].includes(match))
           return match;
         return String(getValue(match));

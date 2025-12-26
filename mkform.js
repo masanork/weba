@@ -424,9 +424,9 @@ function parseMarkdown(text) {
     });
     navHtml += '<div style="flex:1"></div>';
     navHtml += `<div class="no-print" style="display: flex; gap: 10px; align-items: center;">
+            <button class="primary" onclick="window.clearData()" style="margin: 0; background-color: #999;" data-i18n="clear_btn">Clear</button>
             <button class="primary" onclick="window.saveDraft()" style="margin: 0;" data-i18n="work_save_btn">Save Draft</button>
             <button class="primary" onclick="window.submitDocument()" style="margin: 0; background-color: #d9534f;" data-i18n="submit_btn">Submit</button>
-            <button class="primary" onclick="window.clearData()" style="margin: 0; background-color: #999;" data-i18n="clear_btn">Clear</button>
         </div>`;
     navHtml += "</div>";
     if (mainContentHtml.includes("</h1>")) {
@@ -1065,9 +1065,9 @@ function generateHtml(markdown) {
     <div class="page">
         ${html}
         <div class="no-print" style="margin-top: 20px; display: flex; gap: 10px; align-items: center;">
+            <button class="primary" onclick="window.clearData()" style="margin: 0; background-color: #999;" data-i18n="clear_btn">Clear</button>
             <button class="primary" onclick="window.saveDraft()" style="margin: 0;" data-i18n="work_save_btn">Save Draft</button>
             <button class="primary" onclick="window.submitDocument()" style="margin: 0; background-color: #d9534f;" data-i18n="submit_btn">Submit</button>
-            <button class="primary" onclick="window.clearData()" style="margin: 0; margin-left:auto; background-color: #999;" data-i18n="clear_btn">Clear</button>
         </div>
     </div>
     <script type="application/ld+json" id="json-ld">

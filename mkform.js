@@ -115,7 +115,7 @@ var Renderers = {
         </div>`;
   },
   search(key, label, attrs) {
-    const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_]+)/);
+    const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_\-\u0080-\uFFFF]+)/);
     const placeholderMatch = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
     const hintMatch = (attrs || "").match(/hint="([^"]+)"/) || (attrs || "").match(/hint='([^']+)'/);
     const srcKey = srcMatch ? srcMatch[1] : "";
@@ -146,7 +146,7 @@ var Renderers = {
       return `<input type="text" readonly class="${commonClass}" ${dataAttr} data-formula="${this.escapeHtml(formula)}" style="background:#f9f9f9; ${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
     }
     if (type === "datalist") {
-      const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_]+)/);
+      const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_\-\u0080-\uFFFF]+)/);
       const labelIndexMatch = (attrs || "").match(/label:(\d+)/);
       let optionsHtml = "";
       const srcKey = srcMatch ? srcMatch[1] : "";
@@ -163,7 +163,7 @@ var Renderers = {
       return `<input type="text" list="${listId}" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}><datalist id="${listId}">${optionsHtml}</datalist>`;
     }
     if (type === "search") {
-      const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_]+)/);
+      const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_\-\u0080-\uFFFF]+)/);
       const srcKey = srcMatch ? srcMatch[1] : "";
       const searchClass = commonClass + " search-input";
       return `<div style="display:inline-block; position:relative; width: 100%; min-width: 100px;">
@@ -178,7 +178,7 @@ var Renderers = {
   tableRow(cells, isTemplate = false) {
     const tds = cells.map((cell) => {
       const trimmed = cell.trim();
-      const match = trimmed.match(/^\[(?:([a-z]+):)?([a-zA-Z0-9_]+)(?:\s*\((.*)\)|:([^\]]+))?\]$/);
+      const match = trimmed.match(/^\[(?:([a-z]+):)?([^\]\s:\(\)]+)(?:\s*\((.*)\)|:([^\]]+))?\]$/);
       if (match) {
         let [_, type, key, attrsParen, attrsColon] = match;
         const attrs = attrsParen || attrsColon;
@@ -203,7 +203,7 @@ function parseMarkdown(text) {
   let scanMasterKey = null;
   lines.forEach((line) => {
     const t = line.trim();
-    const masterMatch = t.match(/^\[master:([a-zA-Z0-9_]+)\]$/);
+    const masterMatch = t.match(/^\[master:([^\]]+)\]$/);
     if (masterMatch) {
       scanMasterKey = masterMatch[1];
       masterData[scanMasterKey] = [];
@@ -239,7 +239,7 @@ function parseMarkdown(text) {
     mainContentHtml += str;
   };
   const processInlineTags = (text2) => {
-    return text2.replace(/\[(?:([a-z]+):)?([a-zA-Z0-9_]+)(?:\s*\((.*?)\))?\]/g, (match, type, key, attrs) => {
+    return text2.replace(/\[(?:([a-z]+):)?([^\]\s:\(\)]+)(?:\s*\((.*?)\))?\]/g, (match, type, key, attrs) => {
       const label = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
       const cleanLabel = label ? label[1] : key;
       jsonStructure.fields.push({ key, label: cleanLabel, type: type || "text" });
@@ -248,12 +248,12 @@ function parseMarkdown(text) {
   };
   lines.forEach((line) => {
     const trimmed = line.trim();
-    const masterMatch = trimmed.match(/^\[master:([a-zA-Z0-9_]+)\]$/);
+    const masterMatch = trimmed.match(/^\[master:([^\]]+)\]$/);
     if (masterMatch) {
       currentMasterKey = masterMatch[1];
       return;
     }
-    const dynTableMatch = trimmed.match(/^\[dynamic-table:([a-zA-Z0-9_]+)\]$/);
+    const dynTableMatch = trimmed.match(/^\[dynamic-table:([^\]]+)\]$/);
     if (dynTableMatch) {
       currentDynamicTableKey = dynTableMatch[1];
       jsonStructure.tables[currentDynamicTableKey] = [];
@@ -287,7 +287,7 @@ function parseMarkdown(text) {
           } else {
             const tableKey = currentDynamicTableKey;
             cells.forEach((cell) => {
-              const match = cell.trim().match(/^\[(?:([a-z]+):)?([a-zA-Z0-9_]+)(?:\s*\((.*)\)|:([^\]]+))?\]$/);
+              const match = cell.trim().match(/^\[(?:([a-z]+):)?([^\]\s:\(\)]+)(?:\s*\((.*)\)|:([^\]]+))?\]$/);
               if (match) {
                 const [_, type, key, attrsParen, attrsColon] = match;
                 const attrs = attrsParen || attrsColon;
@@ -350,7 +350,7 @@ function parseMarkdown(text) {
         appendHtml(Renderers.radioOption(currentRadioGroup.key, label, label, checked));
       }
     } else if (trimmed.startsWith("- [")) {
-      const match = trimmed.match(/^-\s*\[([a-z]+):([a-zA-Z0-9_]+)(?:\s*\((.*)\))?\]\s*(.*)$/);
+      const match = trimmed.match(/^-\s*\[([a-z]+):([^\]\s:\(\)]+)(?:\s*\((.*)\))?\]\s*(.*)$/);
       if (match) {
         const [_, type, key, attrs, label] = match;
         currentRadioGroup = null;

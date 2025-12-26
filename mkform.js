@@ -813,6 +813,18 @@ function initRuntime() {
   w.addTableRow = (btn, tableKey) => ui.addTableRow(btn, tableKey);
   w.switchTab = (btn, tabId) => ui.switchTab(btn, tabId);
   w.recalculate = () => calc.recalculate();
+  w.escapeHtml = (str) => {
+    if (!str)
+      return "";
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    };
+    return str.toString().replace(/[&<>"']/g, (m) => map[m] || m);
+  };
   data.restoreFromLS();
   ui.applyI18n();
   calc.recalculate();
@@ -953,6 +965,8 @@ class SearchEngine {
       if (table && baseKey) {
         const seen = new Set;
         table.querySelectorAll(\`[data-base-key="\${baseKey}"]\`).forEach((inp) => {
+          if (inp === input)
+            return;
           const v = inp.value;
           if (v && this.normalize(v).includes(normQuery)) {
             if (!seen.has(v)) {

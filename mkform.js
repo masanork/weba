@@ -166,9 +166,8 @@ var Renderers = {
       const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_]+)/);
       const srcKey = srcMatch ? srcMatch[1] : "";
       const searchClass = commonClass + " search-input";
-      return `<div style="display:inline-block; position:relative; min-width: 200px;">
+      return `<div style="display:inline-block; position:relative; width: 100%; min-width: 100px;">
                         <input type="text" class="${searchClass}" ${dataAttr} autocomplete="off" data-master-src="${srcKey}" ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>
-                        <div class="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:white; border:1px solid #ccc; max-height:200px; overflow-y:auto; box-shadow:0 4px 6px rgba(0,0,0,0.1); z-index:1001;"></div>
                     </div>`;
     }
     if (type === "number") {
@@ -731,41 +730,61 @@ function runtime() {
       return 0;
     };
     let suggestionsVisible = false;
+    let activeSearchInput = null;
+    let globalBox = null;
+    const getGlobalBox = () => {
+      if (!globalBox) {
+        globalBox = document.getElementById("web-a-search-suggestions");
+        if (!globalBox) {
+          globalBox = document.createElement("div");
+          globalBox.id = "web-a-search-suggestions";
+          globalBox.className = "search-suggestions";
+          Object.assign(globalBox.style, {
+            display: "none",
+            position: "absolute",
+            background: "white",
+            border: "1px solid #ccc",
+            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+            zIndex: "9999",
+            maxHeight: "200px",
+            overflowY: "auto",
+            borderRadius: "4px"
+          });
+          document.body.appendChild(globalBox);
+        }
+      }
+      return globalBox;
+    };
+    const hideSuggestions = () => {
+      const box = getGlobalBox();
+      if (box)
+        box.style.display = "none";
+      suggestionsVisible = false;
+      activeSearchInput = null;
+    };
     document.addEventListener("click", (e) => {
-      if (suggestionsVisible && !e.target.closest(".autocomplete-container") && !e.target.closest("td")) {
-        document.querySelectorAll(".search-suggestions").forEach((el) => el.style.display = "none");
-        suggestionsVisible = false;
+      if (suggestionsVisible && !e.target.closest("#web-a-search-suggestions") && e.target !== activeSearchInput) {
+        hideSuggestions();
       }
     });
     document.body.addEventListener("input", (e) => {
       if (e.target.classList.contains("search-input")) {
         console.log("Search: Input event detected on .search-input", e.target.value);
         const input = e.target;
-        const container = input.parentElement;
-        if (!container)
-          return;
-        let suggestionsBox = container.querySelector(".search-suggestions");
-        if (!suggestionsBox && container.nextElementSibling?.classList.contains("search-suggestions")) {
-          suggestionsBox = container.nextElementSibling;
-        }
+        activeSearchInput = input;
         const srcKey = input.dataset.masterSrc;
-        if (!srcKey || !suggestionsBox) {
-          console.warn("Search: No src key or suggestion box found", { srcKey, suggestionsBox, container });
+        if (!srcKey) {
+          console.warn("Search: No src key found", { srcKey });
           return;
         }
         const query = input.value;
         if (!query) {
-          suggestionsBox.style.display = "none";
-          suggestionsVisible = false;
+          hideSuggestions();
           return;
         }
         const master = w.generatedJsonStructure.masterData;
-        if (!master) {
-          console.error("Search: masterData is undefined in jsonStructure");
-          return;
-        }
-        if (!master[srcKey]) {
-          console.warn(`Search: masterData key '${srcKey}' not found. Available:`, Object.keys(master));
+        if (!master || !master[srcKey]) {
+          console.warn(`Search: masterData key '${srcKey}' not found.`);
           return;
         }
         const data = master[srcKey];
@@ -783,28 +802,35 @@ function runtime() {
         if (topHits.length > 0) {
           let html = "";
           topHits.forEach((h) => {
-            html += `<div class="suggestion-item" data-val="${w.escapeHtml(h.val)}" style="padding:6px; cursor:pointer; border-bottom:1px solid #eee; background:#fff;">${w.escapeHtml(h.val)}</div>`;
+            html += `<div class="suggestion-item" data-val="${w.escapeHtml(h.val)}" style="padding:8px; cursor:pointer; border-bottom:1px solid #eee; font-size:14px; color:#333;">${w.escapeHtml(h.val)}</div>`;
           });
-          suggestionsBox.innerHTML = html;
-          suggestionsBox.style.display = "block";
+          const box = getGlobalBox();
+          box.innerHTML = html;
+          const rect = input.getBoundingClientRect();
+          const scrollTop = window.scrollY || document.documentElement.scrollTop;
+          const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+          Object.assign(box.style, {
+            display: "block",
+            top: rect.bottom + scrollTop + "px",
+            left: rect.left + scrollLeft + "px",
+            width: rect.width + "px",
+            minWidth: "200px"
+          });
           suggestionsVisible = true;
         } else {
-          suggestionsBox.style.display = "none";
-          suggestionsVisible = false;
+          hideSuggestions();
         }
       }
     });
     document.body.addEventListener("click", (e) => {
       if (e.target.classList.contains("suggestion-item")) {
         const item = e.target;
-        const box = item.closest(".search-suggestions");
-        const container = box.parentElement;
-        const input = container.querySelector("input");
-        if (input) {
-          input.value = item.dataset.val;
-          input.dispatchEvent(new Event("input", { bubbles: true }));
-          box.style.display = "none";
-          suggestionsVisible = false;
+        if (activeSearchInput) {
+          activeSearchInput.value = item.dataset.val;
+          activeSearchInput.dispatchEvent(new Event("input", { bubbles: true }));
+          hideSuggestions();
+        } else {
+          console.warn("Search: No active input found for selection");
         }
       }
     });

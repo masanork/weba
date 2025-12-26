@@ -704,6 +704,7 @@ function runtime() {
   w.initSearch = initSearch;
   console.log("Web/A Runtime Initialized");
   function initSearch() {
+    console.log("Initializing Search...");
     const normalize = (s) => {
       if (!s)
         return "";
@@ -729,27 +730,43 @@ function runtime() {
         return 1;
       return 0;
     };
+    let suggestionsVisible = false;
     document.addEventListener("click", (e) => {
-      if (!e.target.closest(".autocomplete-container") && !e.target.closest("td")) {
+      if (suggestionsVisible && !e.target.closest(".autocomplete-container") && !e.target.closest("td")) {
         document.querySelectorAll(".search-suggestions").forEach((el) => el.style.display = "none");
+        suggestionsVisible = false;
       }
     });
     document.body.addEventListener("input", (e) => {
       if (e.target.classList.contains("search-input")) {
         const input = e.target;
         const container = input.parentElement;
-        const suggestionsBox = container.querySelector(".search-suggestions");
-        const srcKey = input.dataset.masterSrc;
-        if (!srcKey || !suggestionsBox)
+        if (!container)
           return;
+        let suggestionsBox = container.querySelector(".search-suggestions");
+        if (!suggestionsBox && container.nextElementSibling?.classList.contains("search-suggestions")) {
+          suggestionsBox = container.nextElementSibling;
+        }
+        const srcKey = input.dataset.masterSrc;
+        if (!srcKey || !suggestionsBox) {
+          console.warn("Search: No src key or suggestion box found", srcKey, suggestionsBox);
+          return;
+        }
         const query = input.value;
         if (!query) {
           suggestionsBox.style.display = "none";
+          suggestionsVisible = false;
           return;
         }
         const master = w.generatedJsonStructure.masterData;
-        if (!master || !master[srcKey])
+        if (!master) {
+          console.error("Search: masterData is undefined in jsonStructure");
           return;
+        }
+        if (!master[srcKey]) {
+          console.warn(`Search: masterData key '${srcKey}' not found. Available:`, Object.keys(master));
+          return;
+        }
         const data = master[srcKey];
         const hits = [];
         data.forEach((row) => {
@@ -764,12 +781,14 @@ function runtime() {
         if (topHits.length > 0) {
           let html = "";
           topHits.forEach((h) => {
-            html += `<div class="suggestion-item" data-val="${w.escapeHtml(h.val)}" style="padding:6px; cursor:pointer; border-bottom:1px solid #eee;">${w.escapeHtml(h.val)}</div>`;
+            html += `<div class="suggestion-item" data-val="${w.escapeHtml(h.val)}" style="padding:6px; cursor:pointer; border-bottom:1px solid #eee; background:#fff;">${w.escapeHtml(h.val)}</div>`;
           });
           suggestionsBox.innerHTML = html;
           suggestionsBox.style.display = "block";
+          suggestionsVisible = true;
         } else {
           suggestionsBox.style.display = "none";
+          suggestionsVisible = false;
         }
       }
     });
@@ -779,9 +798,12 @@ function runtime() {
         const box = item.closest(".search-suggestions");
         const container = box.parentElement;
         const input = container.querySelector("input");
-        input.value = item.dataset.val;
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        box.style.display = "none";
+        if (input) {
+          input.value = item.dataset.val;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          box.style.display = "none";
+          suggestionsVisible = false;
+        }
       }
     });
   }

@@ -135,6 +135,47 @@ var Renderers = {
             ${hint}
         </div>`;
   },
+  renderInput(type, key, attrs, isTemplate = false) {
+    const placeholderMatch = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
+    const placeholder = placeholderMatch ? `placeholder="${this.escapeHtml(placeholderMatch[1])}"` : "";
+    const commonClass = isTemplate ? "form-input template-input" : "form-input";
+    const dataAttr = isTemplate ? `data-base-key="${key}"` : `data-json-path="${key}"`;
+    if (type === "calc") {
+      const formulaMatch = (attrs || "").match(/formula="([^"]+)"/) || (attrs || "").match(/formula='([^']+)'/);
+      const formula = formulaMatch ? formulaMatch[1] : "";
+      return `<input type="text" readonly class="${commonClass}" ${dataAttr} data-formula="${this.escapeHtml(formula)}" style="background:#f9f9f9; ${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
+    }
+    if (type === "datalist") {
+      const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_]+)/);
+      const labelIndexMatch = (attrs || "").match(/label:(\d+)/);
+      let optionsHtml = "";
+      const srcKey = srcMatch ? srcMatch[1] : "";
+      if (srcKey && this._context.masterData && this._context.masterData[srcKey]) {
+        const data = this._context.masterData[srcKey];
+        const lIdx = labelIndexMatch ? parseInt(labelIndexMatch[1]) - 1 : 1;
+        data.forEach((row) => {
+          if (row.length > lIdx) {
+            optionsHtml += `<option value="${this.escapeHtml(row[lIdx] || "")}"></option>`;
+          }
+        });
+      }
+      const listId = "list_" + key + "_" + Math.floor(Math.random() * 1e4);
+      return `<input type="text" list="${listId}" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}><datalist id="${listId}">${optionsHtml}</datalist>`;
+    }
+    if (type === "search") {
+      const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_]+)/);
+      const srcKey = srcMatch ? srcMatch[1] : "";
+      const searchClass = commonClass + " search-input";
+      return `<div style="display:inline-block; position:relative; min-width: 200px;">
+                        <input type="text" class="${searchClass}" ${dataAttr} autocomplete="off" data-master-src="${srcKey}" ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>
+                        <div class="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:white; border:1px solid #ccc; max-height:200px; overflow-y:auto; box-shadow:0 4px 6px rgba(0,0,0,0.1); z-index:1001;"></div>
+                    </div>`;
+    }
+    if (type === "number") {
+      return `<input type="number" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
+    }
+    return `<input type="text" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
+  },
   tableRow(cells, isTemplate = false) {
     const tds = cells.map((cell) => {
       const trimmed = cell.trim();
@@ -142,56 +183,8 @@ var Renderers = {
       if (match) {
         let [_, type, key, attrsParen, attrsColon] = match;
         const attrs = attrsParen || attrsColon;
-        const placeholderMatch = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
-        const placeholder = placeholderMatch ? `placeholder="${this.escapeHtml(placeholderMatch[1])}"` : "";
-        if (type === "calc") {
-          const formulaMatch = (attrs || "").match(/formula="([^"]+)"/) || (attrs || "").match(/formula='([^']+)'/);
-          const formula = formulaMatch ? formulaMatch[1] : "";
-          const commonClass = isTemplate ? "form-input template-input" : "form-input";
-          const dataAttr = isTemplate ? `data-base-key="${key}"` : `data-json-path="${key}"`;
-          return `<td><input type="text" readonly class="${commonClass}" ${dataAttr} data-formula="${this.escapeHtml(formula)}" style="background:#f9f9f9; ${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}></td>`;
-        }
-        if (type === "datalist") {
-          const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_]+)/);
-          const labelIndexMatch = (attrs || "").match(/label:(\d+)/);
-          let optionsHtml = "";
-          const srcKey = srcMatch ? srcMatch[1] : "";
-          if (srcKey && this._context.masterData && this._context.masterData[srcKey]) {
-            const data = this._context.masterData[srcKey];
-            const lIdx = labelIndexMatch ? parseInt(labelIndexMatch[1]) - 1 : 1;
-            data.forEach((row) => {
-              if (row.length > lIdx) {
-                optionsHtml += `<option value="${this.escapeHtml(row[lIdx] || "")}"></option>`;
-              }
-            });
-          }
-          const listId = "list_" + key + "_" + Math.floor(Math.random() * 1e4);
-          const commonClass = isTemplate ? "form-input template-input" : "form-input";
-          const dataAttr = isTemplate ? `data-base-key="${key}"` : `data-json-path="${key}"`;
-          return `<td><input type="text" list="${listId}" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}><datalist id="${listId}">${optionsHtml}</datalist></td>`;
-        }
-        if (type === "search") {
-          const srcMatch = (attrs || "").match(/src:([a-zA-Z0-9_]+)/);
-          const srcKey = srcMatch ? srcMatch[1] : "";
-          const commonClass = isTemplate ? "form-input template-input search-input" : "form-input search-input";
-          const dataAttr = isTemplate ? `data-base-key="${key}"` : `data-json-path="${key}"`;
-          return `<td>
-                        <div style="position:relative;">
-                            <input type="text" class="${commonClass}" ${dataAttr} autocomplete="off" data-master-src="${srcKey}" ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>
-                            <div class="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:white; border:1px solid #ccc; max-height:200px; overflow-y:auto; box-shadow:0 4px 6px rgba(0,0,0,0.1); z-index:1001;"></div>
-                        </div>
-                    </td>`;
-        }
-        if (type === "number") {
-          const commonClass = isTemplate ? "form-input template-input" : "form-input";
-          const dataAttr = isTemplate ? `data-base-key="${key}"` : `data-json-path="${key}"`;
-          return `<td><input type="number" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}></td>`;
-        }
-        if (isTemplate) {
-          return `<td><input type="text" class="form-input template-input" data-base-key="${key}" ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}></td>`;
-        } else {
-          return `<td><input type="text" class="form-input" data-json-path="${key}" ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}></td>`;
-        }
+        const inputHtml = this.renderInput(type || "text", key, attrs, isTemplate);
+        return `<td>${inputHtml}</td>`;
       } else {
         return `<td>${this.escapeHtml(trimmed)}</td>`;
       }
@@ -245,6 +238,14 @@ function parseMarkdown(text) {
   let mainContentHtml = "";
   const appendHtml = (str) => {
     mainContentHtml += str;
+  };
+  const processInlineTags = (text2) => {
+    return text2.replace(/\[(?:([a-z]+):)?([a-zA-Z0-9_]+)(?:\s*\((.*?)\))?\]/g, (match, type, key, attrs) => {
+      const label = (attrs || "").match(/placeholder="([^"]+)"/) || (attrs || "").match(/placeholder='([^']+)'/);
+      const cleanLabel = label ? label[1] : key;
+      jsonStructure.fields.push({ key, label: cleanLabel, type: type || "text" });
+      return Renderers.renderInput(type || "text", key, attrs || "");
+    });
   };
   lines.forEach((line) => {
     const trimmed = line.trim();
@@ -375,13 +376,13 @@ function parseMarkdown(text) {
         appendHtml("</div></div>");
         currentRadioGroup = null;
       }
-      appendHtml(trimmed);
+      appendHtml(processInlineTags(trimmed));
     } else if (trimmed.length > 0) {
       if (currentRadioGroup) {
         appendHtml("</div></div>");
         currentRadioGroup = null;
       }
-      appendHtml(`<p>${Renderers.escapeHtml(trimmed)}</p>`);
+      appendHtml(`<p>${Renderers.escapeHtml(processInlineTags(trimmed))}</p>`);
     } else {
       if (currentRadioGroup) {
         appendHtml("</div></div>");
@@ -1021,10 +1022,10 @@ We want to verify:
 [dynamic-table:items]
 | Product (Search) | Unit Price | Qty | Total |
 |---|---|---|---|
-| [search:item_name src:products placeholder="Search fruit..."] | [number:price placeholder="0"] | [number:qty placeholder="1"] | [calc:amount formula="price * qty"] |
+| [search:item_name (src:products placeholder="Search fruit...")] | [number:price (placeholder="0")] | [number:qty (placeholder="1")] | [calc:amount (formula="price * qty")] |
 
 <div style="text-align: right; margin-top: 10px;">
-  <b>Grand Total:</b> [calc:grand_total formula="SUM(amount)" size:L bold]
+  <b>Grand Total:</b> [calc:grand_total (formula="SUM(amount)" size:L bold)]
 </div>
 `;
 

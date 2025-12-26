@@ -139,7 +139,7 @@ var Renderers = {
   tableRow(cells, isTemplate = false) {
     const tds = cells.map((cell) => {
       const trimmed = cell.trim();
-      const match = trimmed.match(/^\[(?:([a-z]+):)?([a-zA-Z0-9_]+)(?:\s*\(([^)]+)\)|:([^\]]+))?\]$/);
+      const match = trimmed.match(/^\[(?:([a-z]+):)?([a-zA-Z0-9_]+)(?:\s*\((.*)\)|:([^\]]+))?\]$/);
       if (match) {
         let [_, type, key, attrsParen, attrsColon] = match;
         const attrs = attrsParen || attrsColon;
@@ -306,7 +306,7 @@ function parseMarkdown(text) {
         html += Renderers.radioOption(currentRadioGroup.key, label, label, checked);
       }
     } else if (trimmed.startsWith("- [")) {
-      const match = trimmed.match(/^-\s*\[([a-z]+):([a-zA-Z0-9_]+)(?:\s*\(([^)]+)\))?\]\s*(.*)$/);
+      const match = trimmed.match(/^-\s*\[([a-z]+):([a-zA-Z0-9_]+)(?:\s*\((.*)\))?\]\s*(.*)$/);
       if (match) {
         const [_, type, key, attrs, label] = match;
         currentRadioGroup = null;
@@ -576,6 +576,9 @@ function runtime() {
   recalculate();
 }
 var RUNTIME_SCRIPT = `(${runtime.toString()})();`;
+function initRuntime() {
+  runtime();
+}
 function generateHtml(markdown) {
   const { html, jsonStructure } = parseMarkdown(markdown);
   return `<!DOCTYPE html>
@@ -652,9 +655,7 @@ function updatePreview() {
   preview.innerHTML = html;
   window.generatedJsonStructure = jsonStructure;
   if (!window.isRuntimeLoaded) {
-    const script = document.createElement("script");
-    script.textContent = RUNTIME_SCRIPT;
-    document.body.appendChild(script);
+    initRuntime();
     window.isRuntimeLoaded = true;
   }
   setTimeout(() => {

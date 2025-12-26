@@ -214,7 +214,7 @@ function parseMarkdown(text) {
       if (t.startsWith("|")) {
         const cells = t.split("|").slice(1, -1).map((c) => c.trim());
         const isSep = cells.every((c) => c.match(/^-+$/));
-        if (!isSep) {
+        if (!isSep && scanMasterKey && masterData[scanMasterKey]) {
           masterData[scanMasterKey].push(cells);
         }
       } else {
@@ -359,8 +359,11 @@ function parseMarkdown(text) {
         if (type === "radio") {
           currentRadioGroup = { key, label: cleanLabel, attrs };
           appendHtml(Renderers.radioStart(key, cleanLabel, attrs));
-        } else if (Renderers[type]) {
-          appendHtml(Renderers[type](key, cleanLabel, attrs));
+          if (typeof Renderers[type] === "function") {
+            appendHtml(Renderers[type](key, cleanLabel, attrs));
+          } else {
+            appendHtml(`<p style="color:red">Unknown type: ${type}</p>`);
+          }
         } else {
           appendHtml(`<p style="color:red">Unknown type: ${type}</p>`);
         }
@@ -575,10 +578,7 @@ function runtime() {
     }
   }
   function recalculate() {
-    console.log("Recalculate triggered");
-    const calcFields = document.querySelectorAll("[data-formula]");
-    console.log(`Calc: Found ${calcFields.length} formula fields.`);
-    calcFields.forEach((calcField) => {
+    document.querySelectorAll("[data-formula]").forEach((calcField) => {
       const formula = calcField.dataset.formula;
       if (!formula)
         return;
@@ -607,20 +607,17 @@ function runtime() {
               val = parseFloat(staticInput.value);
           }
         }
-        console.log(`Calc: Var '${varName}' -> Found in: ${foundSource}, Raw: '${rawVal}', Val: ${val}`);
         return val;
       };
       let evalStr = formula.replace(/SUM\(([a-zA-Z0-9_\-\u0080-\uFFFF]+)\)/g, (_, key) => {
         let sum = 0;
         const scope = table || document;
         const inputs = scope.querySelectorAll(`[data-base-key="${key}"], [data-json-path="${key}"]`);
-        console.log(`Calc: SUM(${key}) found ${inputs.length} inputs in scope.`);
         inputs.forEach((inp) => {
           const val = parseFloat(inp.value);
           if (!isNaN(val))
             sum += val;
         });
-        console.log(`Calc: SUM(${key}) result = ${sum}`);
         return sum;
       });
       evalStr = evalStr.replace(/([a-zA-Z_\u0080-\uFFFF][a-zA-Z0-9_\-\u0080-\uFFFF]*)/g, (match) => {
@@ -629,7 +626,6 @@ function runtime() {
         return String(getValue(match));
       });
       try {
-        console.log(`Calc: Eval '${formula}' -> '${evalStr}'`);
         const result = new Function("return " + evalStr)();
         if (typeof result === "number" && !isNaN(result)) {
           calcField.value = Number.isInteger(result) ? result : result.toFixed(0);
@@ -703,7 +699,9 @@ function runtime() {
       return;
     const newRow = templateRow.cloneNode(true);
     newRow.classList.remove("template-row");
-    newRow.querySelectorAll("input").forEach((input) => input.value = "");
+    newRow.querySelectorAll("input").forEach((input) => {
+      input.value = input.getAttribute("value") || "";
+    });
     tbody.appendChild(newRow);
   };
   w.switchTab = function(btn, tabId) {
@@ -716,7 +714,6 @@ function runtime() {
   };
   let tm;
   document.addEventListener("input", (e) => {
-    console.log("Runtime: Input event detected", e.target);
     recalculate();
     updateJsonLd();
     clearTimeout(tm);
@@ -863,15 +860,12 @@ function runtime() {
           activeSearchInput.value = item.dataset.val;
           try {
             const rowData = JSON.parse(item.dataset.row || "[]");
-            console.log("Auto-Fill: rowData", rowData);
             const srcKey = activeSearchInput.dataset.masterSrc;
             const masterHeaders = srcKey ? w.generatedJsonStructure.masterData[srcKey][0] : [];
-            console.log("Auto-Fill: headers", masterHeaders);
             if (masterHeaders.length > 0 && rowData.length > 0) {
               const tr = activeSearchInput.closest("tr");
               if (tr) {
                 const inputs = Array.from(tr.querySelectorAll("input, select, textarea"));
-                console.log("Auto-Fill: inputs in row", inputs.map((i) => i.dataset.baseKey || i.dataset.jsonPath));
                 masterHeaders.forEach((header, idx) => {
                   if (idx === 0)
                     return;
@@ -879,16 +873,13 @@ function runtime() {
                     return;
                   const targetVal = rowData[idx];
                   const keyMatch = normalize(header);
-                  console.log(`Auto-Fill: checking header '${header}' (norm: '${keyMatch}') against value '${targetVal}'`);
                   const targetInput = inputs.find((inp) => {
                     const k = inp.dataset.baseKey || inp.dataset.jsonPath;
                     return k && normalize(k) === keyMatch;
                   });
                   if (targetInput) {
-                    console.log("Auto-Fill: Found match!", targetInput);
                     targetInput.value = targetVal || "";
-                  } else {
-                    console.log("Auto-Fill: No match found for", keyMatch);
+                    targetInput.dispatchEvent(new Event("input", { bubbles: true }));
                   }
                 });
               }
@@ -1115,7 +1106,7 @@ We want to verify:
 [dynamic-table:items]
 | Product (Search) | Unit Price | Qty | Total |
 |---|---|---|---|
-| [search:item_name (src:products placeholder="Search fruit...")] | [number:price (placeholder="0")] | [number:qty (placeholder="1")] | [calc:amount (formula="price * qty")] |
+| [search:item_name (src:products placeholder="Search fruit...")] | [number:price (placeholder="0")] | [number:qty (placeholder="1" val="1")] | [calc:amount (formula="price * qty")] |
 
 <div style="text-align: right; margin-top: 10px;">
   <b>Grand Total:</b> [calc:grand_total (formula="SUM(amount)" size:L bold)]
@@ -1142,7 +1133,7 @@ var DEFAULT_MARKDOWN_JA = `# 請求書（サンプル）
 [dynamic-table:items]
 | 商品名 (検索) | 単価 | 数量 | 小計 |
 |---|---|---|---|
-| [search:商品名 (src:商品 placeholder="商品を検索")] | [number:単価 (placeholder="0")] | [number:数量 (placeholder="1")] | [calc:小計 (formula="単価 * 数量")] |
+| [search:商品名 (src:商品 placeholder="商品を検索")] | [number:単価 (placeholder="0")] | [number:数量 (placeholder="1" val="1")] | [calc:小計 (formula="単価 * 数量")] |
 
 <div style="text-align: right; margin-top: 10px;">
   <b>合計金額:</b> [calc:総合計 (formula="SUM(小計)" size:L bold)]

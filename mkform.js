@@ -173,6 +173,12 @@ var Renderers = {
     if (type === "number") {
       return `<input type="number" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
     }
+    if (type === "number") {
+      return `<input type="number" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
+    }
+    if (type === "checkbox") {
+      return `<input type="checkbox" class="${commonClass}" ${dataAttr} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
+    }
     return `<input type="text" class="${commonClass}" ${dataAttr} ${placeholder} style="${this.getStyle(attrs)}"${this.getExtraAttrs(attrs)}>`;
   },
   tableRow(cells, isTemplate = false) {
@@ -417,7 +423,11 @@ function parseMarkdown(text) {
       navHtml += `<button class="tab-btn${activeClass}" onclick="switchTab(this, '${tab.id}')">${Renderers.escapeHtml(tab.title)}</button>`;
     });
     navHtml += '<div style="flex:1"></div>';
-    navHtml += `<button class="primary" onclick="saveDocument()" data-i18n="save_btn">Save</button>`;
+    navHtml += `<div class="no-print" style="display: flex; gap: 10px; align-items: center;">
+            <button class="primary" onclick="window.saveDraft()" style="margin: 0;" data-i18n="work_save_btn">Save Draft</button>
+            <button class="primary" onclick="window.submitDocument()" style="margin: 0; background-color: #d9534f;" data-i18n="submit_btn">Submit</button>
+            <button class="primary" onclick="window.clearData()" style="margin: 0; background-color: #999;" data-i18n="clear_btn">Clear</button>
+        </div>`;
     navHtml += "</div>";
     if (mainContentHtml.includes("</h1>")) {
       html = mainContentHtml.replace("</h1>", "</h1>" + navHtml);
@@ -519,9 +529,15 @@ function runtime() {
           const rowData = {};
           let hasVal = false;
           tr.querySelectorAll("[data-base-key]").forEach((input) => {
-            rowData[input.dataset.baseKey] = input.value;
-            if (input.value)
-              hasVal = true;
+            if (input.type === "checkbox") {
+              rowData[input.dataset.baseKey] = input.checked;
+              if (input.checked)
+                hasVal = true;
+            } else {
+              rowData[input.dataset.baseKey] = input.value;
+              if (input.value)
+                hasVal = true;
+            }
           });
           if (hasVal)
             rows.push(rowData);
@@ -578,8 +594,12 @@ function runtime() {
             if (row) {
               row.querySelectorAll("input, select").forEach((input) => {
                 const k = input.dataset.baseKey;
-                if (k && rowData[k] !== undefined)
-                  input.value = rowData[k];
+                if (k && rowData[k] !== undefined) {
+                  if (input.type === "checkbox")
+                    input.checked = !!rowData[k];
+                  else
+                    input.value = rowData[k];
+                }
               });
             }
           });
@@ -725,7 +745,12 @@ function runtime() {
   w.removeTableRow = function(btn) {
     const tr = btn.closest("tr");
     if (tr.classList.contains("template-row")) {
-      tr.querySelectorAll("input").forEach((inp) => inp.value = "");
+      tr.querySelectorAll("input").forEach((inp) => {
+        if (inp.type === "checkbox")
+          inp.checked = false;
+        else
+          inp.value = "";
+      });
     } else {
       tr.remove();
       recalculate();
@@ -745,7 +770,11 @@ function runtime() {
     const newRow = templateRow.cloneNode(true);
     newRow.classList.remove("template-row");
     newRow.querySelectorAll("input").forEach((input) => {
-      input.value = input.getAttribute("value") || "";
+      if (input.type === "checkbox") {
+        input.checked = input.hasAttribute("checked");
+      } else {
+        input.value = input.getAttribute("value") || "";
+      }
     });
     const rmBtn = newRow.querySelector(".remove-row-btn");
     if (rmBtn)
@@ -1035,10 +1064,10 @@ function generateHtml(markdown) {
 <body>
     <div class="page">
         ${html}
-        <div class="no-print" style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="primary" onclick="window.saveDraft()" data-i18n="work_save_btn">Save Draft</button>
-            <button class="primary" onclick="window.submitDocument()" style="background-color: #d9534f;" data-i18n="submit_btn">Submit</button>
-            <button onclick="window.clearData()" style="margin-left:auto; background-color: #999;" data-i18n="clear_btn">Clear</button>
+        <div class="no-print" style="margin-top: 20px; display: flex; gap: 10px; align-items: center;">
+            <button class="primary" onclick="window.saveDraft()" style="margin: 0;" data-i18n="work_save_btn">Save Draft</button>
+            <button class="primary" onclick="window.submitDocument()" style="margin: 0; background-color: #d9534f;" data-i18n="submit_btn">Submit</button>
+            <button class="primary" onclick="window.clearData()" style="margin: 0; margin-left:auto; background-color: #999;" data-i18n="clear_btn">Clear</button>
         </div>
     </div>
     <script type="application/ld+json" id="json-ld">

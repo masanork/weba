@@ -575,31 +575,52 @@ function runtime() {
     }
   }
   function recalculate() {
-    document.querySelectorAll("[data-formula]").forEach((calcField) => {
+    console.log("Recalculate triggered");
+    const calcFields = document.querySelectorAll("[data-formula]");
+    console.log(`Calc: Found ${calcFields.length} formula fields.`);
+    calcFields.forEach((calcField) => {
       const formula = calcField.dataset.formula;
       if (!formula)
         return;
       const row = calcField.closest("tr");
       const table = calcField.closest("table");
       const getValue = (varName) => {
+        let val = 0;
+        let foundSource = "none";
+        let rawVal = "";
         if (row) {
-          const input = row.querySelector(`[data-base-key="${varName}"], [data-json-path="${varName}"]`);
-          if (input && input.value !== "")
-            return parseFloat(input.value);
+          const selector = `[data-base-key="${varName}"], [data-json-path="${varName}"]`;
+          const input = row.querySelector(selector);
+          if (input) {
+            foundSource = "row-input";
+            rawVal = input.value;
+            if (input.value !== "")
+              val = parseFloat(input.value);
+          }
         }
-        const staticInput = document.querySelector(`[data-json-path="${varName}"]`);
-        if (staticInput && staticInput.value !== "")
-          return parseFloat(staticInput.value);
-        return 0;
+        if (foundSource === "none") {
+          const staticInput = document.querySelector(`[data-json-path="${varName}"]`);
+          if (staticInput) {
+            foundSource = "static-input";
+            rawVal = staticInput.value;
+            if (staticInput.value !== "")
+              val = parseFloat(staticInput.value);
+          }
+        }
+        console.log(`Calc: Var '${varName}' -> Found in: ${foundSource}, Raw: '${rawVal}', Val: ${val}`);
+        return val;
       };
       let evalStr = formula.replace(/SUM\(([a-zA-Z0-9_\-\u0080-\uFFFF]+)\)/g, (_, key) => {
         let sum = 0;
         const scope = table || document;
-        scope.querySelectorAll(`[data-base-key="${key}"], [data-json-path="${key}"]`).forEach((inp) => {
+        const inputs = scope.querySelectorAll(`[data-base-key="${key}"], [data-json-path="${key}"]`);
+        console.log(`Calc: SUM(${key}) found ${inputs.length} inputs in scope.`);
+        inputs.forEach((inp) => {
           const val = parseFloat(inp.value);
           if (!isNaN(val))
             sum += val;
         });
+        console.log(`Calc: SUM(${key}) result = ${sum}`);
         return sum;
       });
       evalStr = evalStr.replace(/([a-zA-Z_\u0080-\uFFFF][a-zA-Z0-9_\-\u0080-\uFFFF]*)/g, (match) => {
@@ -608,6 +629,7 @@ function runtime() {
         return String(getValue(match));
       });
       try {
+        console.log(`Calc: Eval '${formula}' -> '${evalStr}'`);
         const result = new Function("return " + evalStr)();
         if (typeof result === "number" && !isNaN(result)) {
           calcField.value = Number.isInteger(result) ? result : result.toFixed(0);
@@ -680,6 +702,7 @@ function runtime() {
     if (!templateRow)
       return;
     const newRow = templateRow.cloneNode(true);
+    newRow.classList.remove("template-row");
     newRow.querySelectorAll("input").forEach((input) => input.value = "");
     tbody.appendChild(newRow);
   };
@@ -692,7 +715,8 @@ function runtime() {
       content.classList.add("active");
   };
   let tm;
-  document.addEventListener("input", () => {
+  document.addEventListener("input", (e) => {
+    console.log("Runtime: Input event detected", e.target);
     recalculate();
     updateJsonLd();
     clearTimeout(tm);
@@ -1065,7 +1089,7 @@ function generateAggregatorHtml(markdown) {
 }
 
 // src/weba/sample.ts
-var DEFAULT_MARKDOWN = `# Simple Search & Calc Test
+var DEFAULT_MARKDOWN_EN = `# Simple Search & Calc Test
 ---
 
 ## 1. Master Data Definition
@@ -1097,6 +1121,33 @@ We want to verify:
   <b>Grand Total:</b> [calc:grand_total (formula="SUM(amount)" size:L bold)]
 </div>
 `;
+var DEFAULT_MARKDOWN_JA = `# 請求書（サンプル）
+---
+
+## 1. マスタ定義
+(画面には表示されませんが、検索候補として使用されます)
+
+[master:商品]
+| 商品名 | 単価 |
+|---|---|
+| りんご | 100 |
+| バナナ | 200 |
+| みかん | 150 |
+| 高級メロン | 5000 |
+
+---
+
+## 2. 入力フォーム
+
+[dynamic-table:items]
+| 商品名 (検索) | 単価 | 数量 | 小計 |
+|---|---|---|---|
+| [search:商品名 (src:商品 placeholder="商品を検索")] | [number:単価 (placeholder="0")] | [number:数量 (placeholder="1")] | [calc:小計 (formula="単価 * 数量")] |
+
+<div style="text-align: right; margin-top: 10px;">
+  <b>合計金額:</b> [calc:総合計 (formula="SUM(小計)" size:L bold)]
+</div>
+`;
 
 // src/weba/browser_maker.ts
 function updatePreview() {
@@ -1113,8 +1164,11 @@ function updatePreview() {
     window.isRuntimeLoaded = true;
   }
   setTimeout(() => {
-    if (window.recalculate)
+    if (window.recalculate) {
+      if (window.initSearch)
+        window.initSearch();
       window.recalculate();
+    }
   }, 50);
 }
 function downloadWebA() {
@@ -1169,7 +1223,15 @@ window.addEventListener("DOMContentLoaded", () => {
   applyI18n();
   const editor = document.getElementById("editor");
   if (editor) {
-    editor.value = DEFAULT_MARKDOWN;
+    const navLang = navigator.language || "en";
+    const lang = navLang.startsWith("ja") ? "ja" : "en";
+    console.log(`Language detection: navigator.language='${navLang}' -> using '${lang}' sample.`);
+    const currentVal = editor.value.trim();
+    const isDefaultEn = currentVal === DEFAULT_MARKDOWN_EN.trim();
+    const isDefaultJa = currentVal === DEFAULT_MARKDOWN_JA.trim();
+    if (!currentVal || lang === "ja" && isDefaultEn || lang === "en" && isDefaultJa) {
+      editor.value = lang === "ja" ? DEFAULT_MARKDOWN_JA : DEFAULT_MARKDOWN_EN;
+    }
     updatePreview();
   }
 });

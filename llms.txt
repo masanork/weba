@@ -1,4 +1,3 @@
-- [tech-demo](/tech-demo.html)
 - [guide](/guide.html)
 - [index](/index.html)
 - [prompt](/prompt.html)

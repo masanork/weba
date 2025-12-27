@@ -1,5 +1,0 @@
-- [guide](/guide.html)
-- [index](/index.html)
-- [prompt](/prompt.html)
-- [iryouhi](/iryouhi.html)
-- [web-a-form.ja](/papers/web-a-form.ja.html)

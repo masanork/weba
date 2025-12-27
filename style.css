@@ -134,8 +134,9 @@ pre code {
     background: var(--card-bg);
 }
 
-table {
-    width: 100%;
+.table-wrapper table {
+    width: auto;
+    min-width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
     margin-bottom: 0;
@@ -144,7 +145,7 @@ table {
 
 th,
 td {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
@@ -163,6 +164,32 @@ th {
 tr:last-child td {
     border-bottom: none;
 }
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+    min-width: 80px;
+}
+
+/* Table specific input tweaks */
+td .form-input {
+    padding: 0.5rem;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 4px;
+    min-width: 100px;
+}
+td input[type="number"].form-input { min-width: 80px; }
+td input[type="date"].form-input { min-width: 140px; }
+td input[type="checkbox"].form-input { min-width: auto; width: auto; }
+
 
 .mermaid {
     margin: 2rem 0;

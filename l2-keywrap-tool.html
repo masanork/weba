@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; worker-src 'self' blob:; connect-src 'self';">
+    <title>Web/A L2 Keywrap Tool</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+    <link rel="help" type="text/plain" href="/llms.txt">
+    
+<style>
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+</style>
+    
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        
+        const fonts = ["sans-serif"];
+        const fontFamily = fonts.join(', ');
+        
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+            fontFamily: fontFamily
+        });
+        
+        await mermaid.run({
+            querySelector: '.mermaid'
+        });
+    </script>
+</head>
+<body>
+    <main>
+        
+        <div class="weba-form-container">
+            <h1>Web/A L2 Keywrap Tool</h1><div id="weba-l2-keywrap-tool" class="no-print" style="margin-top: 1rem; padding: 1.25rem; border: 1px solid #cbd5f5; border-radius: 10px; background: #f8fafc;"><div style="font-weight: 600; margin-bottom: 0.5rem;">Passkey Key Wrap Package Generator</div><div style="display: grid; gap: 0.75rem; max-width: 720px;"><label><p>Recipient X25519 Private Key (base64url)</p><input id="kwp-recipient-sk" type="text" class="form-input" placeholder="base64url(secret_key)"></label><label><p>Credential ID (base64url)</p><input id="kwp-credential-id" type="text" class="form-input" placeholder="base64url(credential_id)"></label><label><p>PRF Salt (base64url)</p><div style="display:flex; gap:0.5rem;"><input id="kwp-prf-salt" type="text" class="form-input" placeholder="base64url(salt)" style="flex:1;"><button id="kwp-generate-salt" type="button" class="secondary">Generate</button></div></label><label><p>AAD (base64url, optional)</p><input id="kwp-aad" type="text" class="form-input" placeholder="base64url(layer1_ref)"></label><label><p>Key ID (kid)</p><input id="kwp-kid" type="text" class="form-input" placeholder="issuer#passkey-1"></label><div style="display:flex; gap:0.5rem; align-items:center;"><button id="kwp-wrap" type="button" class="primary">Wrap Key</button><div id="kwp-status" style="color:#64748b;">Ready.</div></div><pre id="kwp-output" style="background:#0f172a;color:#e2e8f0;padding:1rem;border-radius:8px;overflow:auto;font-size:0.85rem;min-height:140px;"></pre></div></div><div class="no-print form-toolbar" style="display: flex; gap: 10px; align-items: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
+            
+            <div style="flex:1"></div>
+            <button class="btn-clear" onclick="window.clearData()" data-i18n="clear_btn">Clear</button>
+            <button class="secondary" onclick="window.saveDraft()" data-i18n="work_save_btn">Save Progress</button>
+            <button class="primary" onclick="window.signAndDownload()" data-i18n="sign_btn">Submit</button>
+    
+        </div>
+            
+
+            <footer class="no-print" style="margin-top: 5rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.85rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                    <details>
+                        <summary style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: #666; font-weight: 600;">
+                            <span style="color: #3b82f6;">ℹ️</span>
+                            <span data-i18n-ja="記入内容（データ）の確認" data-i18n-en="Review Form Data">記入内容（データ）の確認</span>
+                        </summary>
+                        <div style="padding: 1rem 0;">
+                            <pre id="json-debug" style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; line-height: 1.4;"></pre>
+                        </div>
+                    </details>
+                    
+        <details style="margin-top: 0.5rem;">
+            <summary style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: #666; font-weight: 600;">
+                <span>✓</span>
+                <span data-i18n-ja="発行元による真正性の証明" data-i18n-en="Issuer Authenticity Proof">発行元による真正性の証明</span>
+                <span style="font-size: 0.7rem; background: #e6f7e6; color: #2e7d32; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: normal;">Template Signed</span>
+            </summary>
+            <div style="padding: 1rem 0;">
+                <pre style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; line-height: 1.4;">{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "WebAFormTemplate"
+  ],
+  "issuer": "did:web:masanork.github.io:weba",
+  "issuanceDate": "2025-12-27T21:46:20.646Z",
+  "credentialSubject": {
+    "id": "did:web:masanork.github.io:weba/l2-keywrap-tool",
+    "name": "Web/A L2 Keywrap Tool",
+    "contentDigest": "bd5fe83c27acc6859aaf8ecfd3684faa5ec170a02edf9fe584fdb61da5f5c4cf"
+  },
+  "proof": [
+    {
+      "type": "Ed25519Signature2020",
+      "verificationMethod": "did:web:masanork.github.io:weba#build-1766871980553-ed25519",
+      "proofPurpose": "assertionMethod",
+      "proofValue": "d1055df9d9067b12ab0db03225655fe65b4ba667a8e4b732328c6d62514f0c02955fb6b74992746defedfe68fbb6606a406f56840b75c743bb7dfd5331716b07"
+    },
+    {
+      "type": "DataIntegrityProof",
+      "cryptosuite": "ml-dsa-44-2025",
+      "verificationMethod": "did:web:masanork.github.io:weba#build-1766871980553-pqc",
+      "proofPurpose": "assertionMethod",
+      "proofValue": "c421e3173cc02315b9a9e67707c1eacc2e48294d6c4be9c1371be07558d56eb550c1d9fc4b279bebc568bd841dc3eb685a12a10db8705755ea66f1083fa2bf5359f7616d9fac7e4bdf08bf9e5507384853c4e9897351c21eb6e0512033dbdcae3f2cc79fd2441b936b89030cdc0319ad8c067ccf058e5acf3207e427dfc30762e114c3d9a758d7580cbdf53538624628961273965eb586cd05198f3e2abf4f3fe6994717819d097464d1f16485e550f04db1a0f9855675047305b99207b681363357a64654e8bcae504fb9be7ba048afbc0f716cecb400b22d0667e408f14e3c0192a0651a312cadb1f67058e695fe4137036ef7939beae39f0a0230121525519a5fed4d1cc108fef5e4198df0aa83ea0e2a4fade79d47543e99072f904c294e4050cca8aa5fa09b7388642289a32f6b5420657670f599f14512220b097cce8c8c4a722046717eb1bd88fbb8b2efa39251660ca4b69f228fb51a506ba9ea7caa8e24ccb57ad4daf7afae1c37c843291e9001f4b11707a192638a9caa426a336707f2c64222d9589c06fab520d49e25c552fd4107177c094e3fc728e1b502734913b9a6670ec44fed3d550ad7a36b65c328267731652c67c12bd4cd4a8e90233cf40489d6b86049b7b0b1295313bc528352515f2d5577429253054ec50284b6c0b731b40a383b61812f6cbd861e35c56c3d57b6be6e7b796866d721b0a4843cf9ead2c3c9144468258b31f044078c95b65d59b1718c9d4c5936b006324086da423e97c3cc5a1509e22a9a2818fd8f956a85d5a3adb7b8806b4e2979eea7292bc1ee75576d62523aca7ac83615e52fda222f2fc370f4b37ed0ce442955c6698341bdaaea98e81789519fed5adac62d3ff2adc5a6242830a222138db9d7eaffad9e5b179226442f7664dd8cc1a4d6278ba575ff5ee47f64b3881a254d9712dc706014a8665c8a9e74d7df7a3abf6e55215ef75ba47241e1a519fe8e97f6d12d2f9c6e02aeefcc149b629169201333d3de533e0deacfdfcdc9c6e34cca214a0b0906c38e93a70ba505e72bd9dcfa7de241ef92f8d3ab1cfa46c12b89b1973da013a768204ba0038942e84af92072ca28e14f9524d221ba724df598b9292215008e72554ee58409b7ca4bb1e166204f8630bd02d9a8875850c41e1fff7f2fe0101f66e3fc1f69dcf6cead880bb273dd7cc0ea11952690768ee01bba0c6596d77844ff96ff670f85fcfbb823c479366cbdc7f572b376322c244ededa7eec0bdb218470718c759809cd29c9989ae13ab9c6030886fe9610d29bcb22705777a76e90506df75111b47d85465f2c437abeb3856f14ee8a9ea4915003168bb468386094310f0d296b77580bf721405c92c95937939bb4c54a69990ff3caa56de6470babf029655f8c6b276e30367c5771a9993a90b3d4fc0abe98de1cf0a4dbc4fe2b1ac892604227bd5da73bcf07e04c5cbbc2d71025ac1f615872597fcabec8110ef2261645cd15ca30e68c23351d08f1db49138e306c899def50d19e380ebcdff20a08bd7f47000f1d709c4a34cab5583c64204ea6064b721115c02ffede55619ab51250428c827f230b48681b8b26283827b58ec2d56e6079162ceb5104c4ac72ba8bf7a6b0ff0f673088754d83597ee2ddd5665979a5992726b5aa2910b33ecefe889d289aa62b03ab8d20a7916eaf97d9b8ec4415180f071819d52212c39b47748a12ed48a3aaed8608ccd6f0a48e4c5875a281a4251ee438307e6039745adfccb131e64240833f1ea7841877ba283db80b7a0440cb74de34340c4761d5f4127e1325f24be1dd9567833cb14d36b405be9d3e4b21bf0690c7ef3e44d9ee983ea529d3e38b3cd8201b5815b923780da59fcfdd41e59bc8418d454bc326937b120a44be9881499acc07dbb46888d0194251f117e2dfd73e0ee5336cebeab8e32876df0290236a4c85da3754fcfcb0c9353d9aa338ee64fa97acc802d8aa565657f0fd42ae4b1cd5dd3a33c0c5c4161e3649dc40e84e504131138ea8133c17f6e501dd4a7e7fec1ca5395ae3611bdd62a18ca0f9bab12fcdcf76e91657575c86267f31ed6c2e8cf4b7ee91d663004578e1378f949a388764f7eb1d9e59fdf50be2055800e4d07d33ed5120bc4e93407dc315e33277d6e8fa42e18e9a4ee8e62e06f89d4bc50ff987a94434f148ac23e805fcc34e1cbbbad6357c166823c86258c6057d47b9bb02e23f5b61405a1e1746c5cb91cc833a5ee3903f35b8beba9eddd584e4b3f2390bebefb4899059c0d2b4a843660431bfa17a386a129966fc5577654b783bb7f9eef8c4b1343a8addfb6b887ebaa2e303d1e7a941aef525729894415cbb31e4d4c16cbe5ad47739e15434e18f7162ceb762a95db0c9b44c9e4e08344f147ce8ed7df2406d2e02991fd0c866e32faf684d96460747bfa18037a3fb28d3f5b71a997b1e59e97cbd0d934d887cf3da136c1e22415325a166c50d83771084e3ba8b3cc8fb7842a732bc2a87b341b10ab7edbc5ae0872fd6493d99a02739f317739ab8b6b11edd3aa1b3b480434b1ddd12eecc06bfb178f656d43b8a7fd67fbf5173cbdb842d2dc8982bd557c1add06e95c7fce34d9849e6cd29fa8a614227ff78a0ca96e8145bdefb07c492f3cbef73d4a5a8679f134d384589024d88b06af33e7096d161e543dcd8f6b18006acc75a9a39805f1ed6dbf3a83eabb4de52902fd4991170f102aeecd38a4bfccdce00a58101a8edbb3502e9e137a62bc2067a5e98c051af0a9325590d4ffb779259818f944890ec67744430c44ea334a1a1832917831ea91d83e28665119e3da543f1b88d7775c4413daf5c23b9dd562d77b2b434907ee6976ca1752815334190e99165d67c6dec7dc25ed2f729d7dd768ef15fc17f907d1529bff9a6bcca829274a1c33af8a475db5af8a047a997628c59573e04ff6016f3ebdd63ec111c3942521516b831002d63991a6a042f3f7965ce62f55b73c487dc82b8b583d2bc55dfc12ad3b67859c504d496f8ce43eda78709440ec428257ecbaa68d1abf677790bb7aff44e8f98a85ce116e1f8a44cde24fa4c6df9cdd8eb8675b9eab47250e928ac04a5d7d74878e3b6a614a5eb8ce8c2f895b686cb783a9eba7aad6e29ef8ab66428b73fe1770072d66e7a54d3472026a3cff6ee991b340bbc4062c49a47be790431f515290f0acdb4065e7e7646ecb7286d9d383d963863073bb85c0b5a667c2f00a1f2673e24bafb6dc374d95583ebb28cb76db59111c600d06f052e72236f6e6bcea209486d4d87ddf0b47aca99a69dcf2a22011c1e2d44627c818993b5d0ddf2f507132232455d6c748f9ab2b8d4d6effe0209152936414e545d636c76d1daddf3f7f8fe0207111736404b5e70778796979ea7afb3c6d5d8e0ea00000000000000000f1f3248"
+    }
+  ]
+}</pre>
+            </div>
+        </details>
+    
+                </div>
+            </footer>
+        </div>
+        <script id="weba-structure" type="application/json">{"@context":"https://schema.org","@type":"CreativeWork","fields":[],"tables":{},"masterData":{},"name":"Web/A L2 Keywrap Tool"}</script>
+        
+        
+        <script src="./assets/form-bundle.js"></script>
+    
+    </main>
+    <script>
+        (() => {
+            const lang = (navigator.language || '').toLowerCase();
+            const isJa = lang.startsWith('ja');
+            document.querySelectorAll('[data-i18n-ja]').forEach((el) => {
+                const ja = el.getAttribute('data-i18n-ja') || '';
+                const en = el.getAttribute('data-i18n-en') || ja;
+                el.textContent = isJa ? ja : en;
+            });
+        })();
+    </script>
+</body>
+</html>

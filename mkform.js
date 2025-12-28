@@ -23165,9 +23165,10 @@ var DEFAULT_MARKDOWN_EN = `# Community Grant Application (Sample)
 
 ## 6. Aggregator Preview (Sample)
 
-> This section is intended for the Aggregator preview. The normal form ignores it.
-
 <div data-preview-only="aggregator" style="display:grid; gap: 8px; grid-template-columns: repeat(3, minmax(0, 1fr));">
+  <div style="grid-column: 1 / -1; font-size: 12px; color: #6b7280;">
+    This section is intended for the Aggregator preview. The normal form ignores it.
+  </div>
   <div style="padding:12px; border:1px solid #e5e7eb; border-radius:8px;">
     <b>Applications</b><br>
     <span style="font-size:24px;">24</span>
@@ -23337,9 +23338,10 @@ var DEFAULT_MARKDOWN_JA = `# 地域助成申請（サンプル）
 
 ## 6. 集計プレビュー（サンプル）
 
-> このセクションは集計プレビュー用の表示例です。
-
 <div data-preview-only="aggregator" style="display:grid; gap: 8px; grid-template-columns: repeat(3, minmax(0, 1fr));">
+  <div style="grid-column: 1 / -1; font-size: 12px; color: #6b7280;">
+    このセクションは集計プレビュー用の表示例です。
+  </div>
   <div style="padding:12px; border:1px solid #e5e7eb; border-radius:8px;">
     <b>申請件数</b><br>
     <span style="font-size:24px;">24</span>

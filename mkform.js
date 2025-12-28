@@ -23106,6 +23106,202 @@ function generateAggregatorHtml(markdown) {
 }
 
 // src/form/sample.ts
+var AGG_BLOCK_EN = [
+  "```agg",
+  "version: 0.1",
+  "samples:",
+  "  - application_id: GRANT-2025-017",
+  "    applicant:",
+  "      name: Seaside Youth Lab",
+  "      type: NPO",
+  "      region: Kansai",
+  "    project:",
+  "      title: Neighborhood STEM Lab",
+  "      budget_total: 3200000",
+  "      request_amount: 1200000",
+  "      impact_score: 86",
+  "      readiness_score: 72",
+  "    review:",
+  "      recommendation: Approve with Changes",
+  "  - application_id: GRANT-2025-018",
+  "    applicant:",
+  "      name: Urban Food Circle",
+  "      type: Company",
+  "      region: Kanto",
+  "    project:",
+  "      title: Food Loss Reduction Pilot",
+  "      budget_total: 5400000",
+  "      request_amount: 2000000",
+  "      impact_score: 91",
+  "      readiness_score: 80",
+  "    review:",
+  "      recommendation: Approve",
+  "  - application_id: GRANT-2025-019",
+  "    applicant:",
+  "      name: North Hills High",
+  "      type: School",
+  "      region: Tohoku",
+  "    project:",
+  "      title: Remote Science Kits",
+  "      budget_total: 2100000",
+  "      request_amount: 1500000",
+  "      impact_score: 78",
+  "      readiness_score: 64",
+  "    review:",
+  "      recommendation: Hold",
+  "  - application_id: GRANT-2025-020",
+  "    applicant:",
+  "      name: Harbor Climate Studio",
+  "      type: NPO",
+  "      region: Kyushu",
+  "    project:",
+  "      title: Climate Storytelling Lab",
+  "      budget_total: 4100000",
+  "      request_amount: 2300000",
+  "      impact_score: 88",
+  "      readiness_score: 75",
+  "    review:",
+  "      recommendation: Approve",
+  "dashboard:",
+  "  title: Grant Intake Dashboard",
+  "  cards:",
+  "    - id: total_requests",
+  "      label: Applications",
+  "      op: count",
+  "    - id: total_requested",
+  "      label: Requested Total",
+  "      op: sum",
+  "      path: project.request_amount",
+  "      format: currency",
+  "    - id: avg_impact",
+  "      label: Avg Impact",
+  "      op: avg",
+  "      path: project.impact_score",
+  "  tables:",
+  "    - id: by_region",
+  "      label: By Region",
+  "      group_by: applicant.region",
+  "      metrics:",
+  "        - id: count",
+  "          op: count",
+  "        - id: requested",
+  "          op: sum",
+  "          path: project.request_amount",
+  "          format: currency",
+  "      sort:",
+  "        by: requested",
+  "        order: desc",
+  "      limit: 10",
+  "    - id: by_recommendation",
+  "      label: By Recommendation",
+  "      group_by: review.recommendation",
+  "      metrics:",
+  "        - id: count",
+  "          op: count",
+  "export:",
+  "  jsonl: true",
+  "  parquet: true",
+  "```"
+].join(`
+`);
+var AGG_BLOCK_JA = [
+  "```agg",
+  "version: 0.1",
+  "samples:",
+  "  - application_id: GRANT-2025-017",
+  "    applicant:",
+  "      name: 港町ユースラボ",
+  "      type: NPO",
+  "      region: 関西",
+  "    project:",
+  "      title: 地域STEMラボ",
+  "      budget_total: 3200000",
+  "      request_amount: 1200000",
+  "      impact_score: 86",
+  "      readiness_score: 72",
+  "    review:",
+  "      recommendation: 条件付き採択",
+  "  - application_id: GRANT-2025-018",
+  "    applicant:",
+  "      name: 都市フードサークル",
+  "      type: 企業",
+  "      region: 関東",
+  "    project:",
+  "      title: 食品ロス削減パイロット",
+  "      budget_total: 5400000",
+  "      request_amount: 2000000",
+  "      impact_score: 91",
+  "      readiness_score: 80",
+  "    review:",
+  "      recommendation: 採択",
+  "  - application_id: GRANT-2025-019",
+  "    applicant:",
+  "      name: 北丘高校",
+  "      type: 学校",
+  "      region: 東北",
+  "    project:",
+  "      title: 遠隔実験キット",
+  "      budget_total: 2100000",
+  "      request_amount: 1500000",
+  "      impact_score: 78",
+  "      readiness_score: 64",
+  "    review:",
+  "      recommendation: 保留",
+  "  - application_id: GRANT-2025-020",
+  "    applicant:",
+  "      name: 港湾クライメイトスタジオ",
+  "      type: NPO",
+  "      region: 九州",
+  "    project:",
+  "      title: 気候ストーリーテリングラボ",
+  "      budget_total: 4100000",
+  "      request_amount: 2300000",
+  "      impact_score: 88",
+  "      readiness_score: 75",
+  "    review:",
+  "      recommendation: 採択",
+  "dashboard:",
+  "  title: 助成申請ダッシュボード",
+  "  cards:",
+  "    - id: total_requests",
+  "      label: 申請件数",
+  "      op: count",
+  "    - id: total_requested",
+  "      label: 希望助成合計",
+  "      op: sum",
+  "      path: project.request_amount",
+  "      format: currency",
+  "    - id: avg_impact",
+  "      label: 平均インパクト",
+  "      op: avg",
+  "      path: project.impact_score",
+  "  tables:",
+  "    - id: by_region",
+  "      label: 地域別",
+  "      group_by: applicant.region",
+  "      metrics:",
+  "        - id: count",
+  "          op: count",
+  "        - id: requested",
+  "          op: sum",
+  "          path: project.request_amount",
+  "          format: currency",
+  "      sort:",
+  "        by: requested",
+  "        order: desc",
+  "      limit: 10",
+  "    - id: by_recommendation",
+  "      label: 推奨別",
+  "      group_by: review.recommendation",
+  "      metrics:",
+  "        - id: count",
+  "          op: count",
+  "export:",
+  "  jsonl: true",
+  "  parquet: true",
+  "```"
+].join(`
+`);
 var DEFAULT_MARKDOWN_EN = `# Community Grant Application (Sample)
 ---
 
@@ -23183,101 +23379,7 @@ var DEFAULT_MARKDOWN_EN = `# Community Grant Application (Sample)
   </div>
 </div>
 
-\`\`\`agg
-version: 0.1
-samples:
-  - application_id: GRANT-2025-017
-    applicant:
-      name: Seaside Youth Lab
-      type: NPO
-      region: Kansai
-    project:
-      title: Neighborhood STEM Lab
-      budget_total: 3200000
-      request_amount: 1200000
-      impact_score: 86
-      readiness_score: 72
-    review:
-      recommendation: Approve with Changes
-  - application_id: GRANT-2025-018
-    applicant:
-      name: Urban Food Circle
-      type: Company
-      region: Kanto
-    project:
-      title: Food Loss Reduction Pilot
-      budget_total: 5400000
-      request_amount: 2000000
-      impact_score: 91
-      readiness_score: 80
-    review:
-      recommendation: Approve
-  - application_id: GRANT-2025-019
-    applicant:
-      name: North Hills High
-      type: School
-      region: Tohoku
-    project:
-      title: Remote Science Kits
-      budget_total: 2100000
-      request_amount: 1500000
-      impact_score: 78
-      readiness_score: 64
-    review:
-      recommendation: Hold
-  - application_id: GRANT-2025-020
-    applicant:
-      name: Harbor Climate Studio
-      type: NPO
-      region: Kyushu
-    project:
-      title: Climate Storytelling Lab
-      budget_total: 4100000
-      request_amount: 2300000
-      impact_score: 88
-      readiness_score: 75
-    review:
-      recommendation: Approve
-dashboard:
-  title: Grant Intake Dashboard
-  cards:
-    - id: total_requests
-      label: Applications
-      op: count
-    - id: total_requested
-      label: Requested Total
-      op: sum
-      path: project.request_amount
-      format: currency
-    - id: avg_impact
-      label: Avg Impact
-      op: avg
-      path: project.impact_score
-  tables:
-    - id: by_region
-      label: By Region
-      group_by: applicant.region
-      metrics:
-        - id: count
-          op: count
-        - id: requested
-          op: sum
-          path: project.request_amount
-          format: currency
-      sort:
-        by: requested
-        order: desc
-      limit: 10
-    - id: by_recommendation
-      label: By Recommendation
-      group_by: review.recommendation
-      metrics:
-        - id: count
-          op: count
-export:
-  jsonl: true
-  parquet: true
-\`\`\`
+${AGG_BLOCK_EN}
 `;
 var DEFAULT_MARKDOWN_JA = `# 地域助成申請（サンプル）
 ---
@@ -23356,101 +23458,7 @@ var DEFAULT_MARKDOWN_JA = `# 地域助成申請（サンプル）
   </div>
 </div>
 
-\`\`\`agg
-version: 0.1
-samples:
-  - application_id: GRANT-2025-017
-    applicant:
-      name: 港町ユースラボ
-      type: NPO
-      region: 関西
-    project:
-      title: 地域STEMラボ
-      budget_total: 3200000
-      request_amount: 1200000
-      impact_score: 86
-      readiness_score: 72
-    review:
-      recommendation: 条件付き採択
-  - application_id: GRANT-2025-018
-    applicant:
-      name: 都市フードサークル
-      type: 企業
-      region: 関東
-    project:
-      title: 食品ロス削減パイロット
-      budget_total: 5400000
-      request_amount: 2000000
-      impact_score: 91
-      readiness_score: 80
-    review:
-      recommendation: 採択
-  - application_id: GRANT-2025-019
-    applicant:
-      name: 北丘高校
-      type: 学校
-      region: 東北
-    project:
-      title: 遠隔実験キット
-      budget_total: 2100000
-      request_amount: 1500000
-      impact_score: 78
-      readiness_score: 64
-    review:
-      recommendation: 保留
-  - application_id: GRANT-2025-020
-    applicant:
-      name: 港湾クライメイトスタジオ
-      type: NPO
-      region: 九州
-    project:
-      title: 気候ストーリーテリングラボ
-      budget_total: 4100000
-      request_amount: 2300000
-      impact_score: 88
-      readiness_score: 75
-    review:
-      recommendation: 採択
-dashboard:
-  title: 助成申請ダッシュボード
-  cards:
-    - id: total_requests
-      label: 申請件数
-      op: count
-    - id: total_requested
-      label: 希望助成合計
-      op: sum
-      path: project.request_amount
-      format: currency
-    - id: avg_impact
-      label: 平均インパクト
-      op: avg
-      path: project.impact_score
-  tables:
-    - id: by_region
-      label: 地域別
-      group_by: applicant.region
-      metrics:
-        - id: count
-          op: count
-        - id: requested
-          op: sum
-          path: project.request_amount
-          format: currency
-      sort:
-        by: requested
-        order: desc
-      limit: 10
-    - id: by_recommendation
-      label: 推奨別
-      group_by: review.recommendation
-      metrics:
-        - id: count
-          op: count
-export:
-  jsonl: true
-  parquet: true
-\`\`\`
+${AGG_BLOCK_JA}
 `;
 
 // src/form/browser_maker.ts

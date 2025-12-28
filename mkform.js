@@ -23116,11 +23116,7 @@ var DEFAULT_MARKDOWN_EN = `# Community Grant Application (Sample)
 - [text:applicant.name (placeholder="Seaside Youth Lab")] Organization
 - [text:applicant.contact (placeholder="Program Lead")] Contact
 - [text:applicant.region (placeholder="Kansai")] Region
-- [radio:applicant.type] Org Type
-  - NPO
-  - Company
-  - School
-  - Individual
+- [search:applicant.type (src:org_types label:1 value:1 placeholder="Select type")] Org Type
 
 ---
 
@@ -23144,7 +23140,19 @@ var DEFAULT_MARKDOWN_EN = `# Community Grant Application (Sample)
 
 ---
 
-## 4. Review
+## 4. Master Data (Organization Types)
+
+[master:org_types]
+| code | label |
+|---|---|
+| NPO | NPO |
+| Company | Company |
+| School | School |
+| Individual | Individual |
+
+---
+
+## 5. Review
 
 - [radio:review.recommendation] Recommendation
   - Approve
@@ -23155,7 +23163,7 @@ var DEFAULT_MARKDOWN_EN = `# Community Grant Application (Sample)
 
 ---
 
-## 5. Aggregator Preview (Sample)
+## 6. Aggregator Preview (Sample)
 
 > This section is intended for the Aggregator preview. The normal form ignores it.
 
@@ -23280,11 +23288,7 @@ var DEFAULT_MARKDOWN_JA = `# 地域助成申請（サンプル）
 - [text:applicant.name (placeholder="港町ユースラボ")] 団体名
 - [text:applicant.contact (placeholder="担当者")] 連絡先
 - [text:applicant.region (placeholder="関西")] 地域
-- [radio:applicant.type] 団体種別
-  - NPO
-  - 企業
-  - 学校
-  - 個人
+- [search:applicant.type (src:org_types label:1 value:1 placeholder="団体種別を選択")] 団体種別
 
 ---
 
@@ -23308,7 +23312,19 @@ var DEFAULT_MARKDOWN_JA = `# 地域助成申請（サンプル）
 
 ---
 
-## 4. 審査
+## 4. 団体種別マスタ
+
+[master:org_types]
+| code | label |
+|---|---|
+| NPO | NPO |
+| Company | 企業 |
+| School | 学校 |
+| Individual | 個人 |
+
+---
+
+## 5. 審査
 
 - [radio:review.recommendation] 推奨
   - 採択
@@ -23319,7 +23335,7 @@ var DEFAULT_MARKDOWN_JA = `# 地域助成申請（サンプル）
 
 ---
 
-## 5. 集計プレビュー（サンプル）
+## 6. 集計プレビュー（サンプル）
 
 > このセクションは集計プレビュー用の表示例です。
 

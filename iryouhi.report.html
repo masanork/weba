@@ -62,7 +62,36 @@ body {
         })();
     </script>
     
-</head>
+    <style>
+        /* Hide by default, show based on body class */
+        [data-lang-ja], [data-lang-en] { display: none !important; }
+        
+        .js-lang-ja [data-lang-ja] { display: contents !important; }
+        .js-lang-ja span[data-lang-ja], .js-lang-ja a[data-lang-ja], .js-lang-ja i[data-lang-ja] { display: inline !important; }
+        
+        .js-lang-en [data-lang-en] { display: contents !important; }
+        .js-lang-en span[data-lang-en], .js-lang-en a[data-lang-en], .js-lang-en i[data-lang-en] { display: inline !important; }
+    </style>
+    <script>
+        (() => {
+            const lang = (navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en';
+            if (lang === 'ja') {
+                document.documentElement.lang = 'ja';
+                document.documentElement.classList.add('js-lang-ja');
+            } else {
+                document.documentElement.lang = 'en';
+                document.documentElement.classList.add('js-lang-en');
+            }
+            // Backward compatibility for simple data-i18n replacements
+            window.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('[data-i18n-ja]').forEach((el) => {
+                    const ja = el.getAttribute('data-i18n-ja') || '';
+                    const en = el.getAttribute('data-i18n-en') || ja;
+                    el.textContent = lang === 'ja' ? ja : en;
+                });
+            });
+        })();
+    </script>
 </head>
 <body class="">
     <main>
@@ -84,7 +113,7 @@ body {
             <canvas id="weba-scatter" width="900" height="420" style="border: 1px solid #ddd; border-radius: 6px; background: #fff;"></canvas>
             <div id="weba-report-table" style="margin-top: 1rem; overflow-x: auto;"></div>
         </div>
-        <script id="weba-structure" type="application/json">{"@context":"https://schema.org","@type":"CreativeWork","fields":[{"key":"total_paid","label":"支払った医療費の金額計","type":"calc"},{"key":"total_comp","label":"補填される金額計","type":"calc"}],"tables":{"details":[{"key":"no","label":"no","type":"autonum"},{"key":"patient","label":"全角10文字以内","type":"text"},{"key":"place","label":"全角20文字以内","type":"text"},{"key":"cat_med","label":"cat_med","type":"checkbox"},{"key":"cat_drug","label":"cat_drug","type":"checkbox"},{"key":"cat_care","label":"cat_care","type":"checkbox"},{"key":"cat_other","label":"cat_other","type":"checkbox"},{"key":"amount","label":"半角数字","type":"number"},{"key":"comp","label":"半角数字","type":"number"},{"key":"date","label":"date","type":"date"}]},"masterData":{},"name":"医療費集計フォーム"}</script>
+        <script id="weba-structure" type="application/json">{"@context":"https://schema.org","@type":"CreativeWork","fields":[{"key":"total_paid","label":"支払った医療費の金額計","type":"calc"},{"key":"total_comp","label":"補填される金額計","type":"calc"}],"tables":{"details":[{"key":"no","label":"no","type":"autonum"},{"key":"patient","label":"全角10文字以内","type":"text"},{"key":"place","label":"全角20文字以内","type":"text"},{"key":"cat_med","label":"cat_med","type":"checkbox"},{"key":"cat_drug","label":"cat_drug","type":"checkbox"},{"key":"cat_care","label":"cat_care","type":"checkbox"},{"key":"cat_other","label":"cat_other","type":"checkbox"},{"key":"amount","label":"半角数字","type":"number"},{"key":"comp","label":"半角数字","type":"number"},{"key":"date","label":"date","type":"date"}]},"masterData":{}}</script>
         <script>
             const statusEl = document.getElementById('weba-report-status');
             const fileInput = document.getElementById('weba-report-files');
@@ -226,16 +255,5 @@ body {
         </script>
     
     </main>
-    <script>
-        (() => {
-            const lang = (navigator.language || '').toLowerCase();
-            const isJa = lang.startsWith('ja');
-            document.querySelectorAll('[data-i18n-ja]').forEach((el) => {
-                const ja = el.getAttribute('data-i18n-ja') || '';
-                const en = el.getAttribute('data-i18n-en') || ja;
-                el.textContent = isJa ? ja : en;
-            });
-        })();
-    </script>
 </body>
 </html>

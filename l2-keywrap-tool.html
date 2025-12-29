@@ -62,13 +62,42 @@ body {
         })();
     </script>
     
-</head>
+    <style>
+        /* Hide by default, show based on body class */
+        [data-lang-ja], [data-lang-en] { display: none !important; }
+        
+        .js-lang-ja [data-lang-ja] { display: contents !important; }
+        .js-lang-ja span[data-lang-ja], .js-lang-ja a[data-lang-ja], .js-lang-ja i[data-lang-ja] { display: inline !important; }
+        
+        .js-lang-en [data-lang-en] { display: contents !important; }
+        .js-lang-en span[data-lang-en], .js-lang-en a[data-lang-en], .js-lang-en i[data-lang-en] { display: inline !important; }
+    </style>
+    <script>
+        (() => {
+            const lang = (navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en';
+            if (lang === 'ja') {
+                document.documentElement.lang = 'ja';
+                document.documentElement.classList.add('js-lang-ja');
+            } else {
+                document.documentElement.lang = 'en';
+                document.documentElement.classList.add('js-lang-en');
+            }
+            // Backward compatibility for simple data-i18n replacements
+            window.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('[data-i18n-ja]').forEach((el) => {
+                    const ja = el.getAttribute('data-i18n-ja') || '';
+                    const en = el.getAttribute('data-i18n-en') || ja;
+                    el.textContent = lang === 'ja' ? ja : en;
+                });
+            });
+        })();
+    </script>
 </head>
 <body class="">
     <main>
         
         <div class="weba-form-container">
-            <h1>Web/A L2 Keywrap Tool</h1><div id="weba-l2-keywrap-tool" class="no-print" style="margin-top: 1rem; padding: 1.25rem; border: 1px solid #cbd5f5; border-radius: 10px; background: #f8fafc;"><div style="font-weight: 600; margin-bottom: 0.5rem;">Passkey Key Wrap Package Generator</div><div style="display: grid; gap: 0.75rem; max-width: 720px;"><label><p>Recipient X25519 Private Key (base64url)</p><input id="kwp-recipient-sk" type="text" class="form-input" placeholder="base64url(secret_key)"></label><label><p>Credential ID (base64url)</p><input id="kwp-credential-id" type="text" class="form-input" placeholder="base64url(credential_id)"></label><label><p>PRF Salt (base64url)</p><div style="display:flex; gap:0.5rem;"><input id="kwp-prf-salt" type="text" class="form-input" placeholder="base64url(salt)" style="flex:1;"><button id="kwp-generate-salt" type="button" class="secondary">Generate</button></div></label><label><p>AAD (base64url, optional)</p><input id="kwp-aad" type="text" class="form-input" placeholder="base64url(layer1_ref)"></label><label><p>Key ID (kid)</p><input id="kwp-kid" type="text" class="form-input" placeholder="issuer#passkey-1"></label><div style="display:flex; gap:0.5rem; align-items:center;"><button id="kwp-wrap" type="button" class="primary">Wrap Key</button><div id="kwp-status" style="color:#64748b;">Ready.</div></div><pre id="kwp-output" style="background:#0f172a;color:#e2e8f0;padding:1rem;border-radius:8px;overflow:auto;font-size:0.85rem;min-height:140px;"></pre></div></div><div class="no-print form-toolbar" style="display: flex; gap: 10px; align-items: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
+            <div id="weba-l2-keywrap-tool" class="no-print" style="margin-top: 1rem; padding: 1.25rem; border: 1px solid #cbd5f5; border-radius: 10px; background: #f8fafc;"><div style="font-weight: 600; margin-bottom: 0.5rem;">Passkey Key Wrap Package Generator</div><div style="display: grid; gap: 0.75rem; max-width: 720px;"><label><p>Recipient X25519 Private Key (base64url)</p><input id="kwp-recipient-sk" type="text" class="form-input" placeholder="base64url(secret_key)"></label><label><p>Credential ID (base64url)</p><input id="kwp-credential-id" type="text" class="form-input" placeholder="base64url(credential_id)"></label><label><p>PRF Salt (base64url)</p><div style="display:flex; gap:0.5rem;"><input id="kwp-prf-salt" type="text" class="form-input" placeholder="base64url(salt)" style="flex:1;"><button id="kwp-generate-salt" type="button" class="secondary">Generate</button></div></label><label><p>AAD (base64url, optional)</p><input id="kwp-aad" type="text" class="form-input" placeholder="base64url(layer1_ref)"></label><label><p>Key ID (kid)</p><input id="kwp-kid" type="text" class="form-input" placeholder="issuer#passkey-1"></label><div style="display:flex; gap:0.5rem; align-items:center;"><button id="kwp-wrap" type="button" class="primary">Wrap Key</button><div id="kwp-status" style="color:#64748b;">Ready.</div></div><pre id="kwp-output" style="background:#0f172a;color:#e2e8f0;padding:1rem;border-radius:8px;overflow:auto;font-size:0.85rem;min-height:140px;"></pre></div></div><div class="no-print form-toolbar" style="display: flex; gap: 10px; align-items: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
             
             <div style="flex:1"></div>
             <button class="btn-clear" onclick="window.clearData()" data-i18n="clear_btn">Clear</button>
@@ -106,25 +135,28 @@ body {
     "WebAFormTemplate"
   ],
   "issuer": "did:web:masanork.github.io:weba",
-  "issuanceDate": "2025-12-29T04:18:38.394Z",
+  "issuanceDate": "2025-12-29T13:56:33.327Z",
   "credentialSubject": {
     "id": "did:web:masanork.github.io:weba/l2-keywrap-tool",
     "name": "Web/A L2 Keywrap Tool",
-    "contentDigest": "bd5fe83c27acc6859aaf8ecfd3684faa5ec170a02edf9fe584fdb61da5f5c4cf"
+    "contentDigest": "3bbad1b88df26573ff6194adb5df06a3ddd963e9b13312f76a558a67a8f4cd7a"
   },
   "proof": [
     {
-      "type": "Ed25519Signature2020",
-      "verificationMethod": "did:web:masanork.github.io:weba#build-1766981918338-ed25519",
+      "type": "DataIntegrityProof",
+      "cryptosuite": "eddsa-jcs-2022",
+      "verificationMethod": "did:web:masanork.github.io:weba#build-1767016593200-ed25519",
       "proofPurpose": "assertionMethod",
-      "proofValue": "fa629e0d46ee4aed3234dcfb8176ba5b6241f71da4c64e526f0a1def7456214738cc93c28cb352d3c5ef862bf3ce4b88df043e5343f391366c2116a9c5dd810b"
+      "created": "2025-12-29T13:56:33.327Z",
+      "proofValue": "z3Uxf38pcJpNAbBN5DLJP4tLM6UMMGeNqUyqkheoXBMsp8pFqHukAxh4STAjKBqb9yHgvxwxRCgFcxHo4dHum9uYz"
     },
     {
       "type": "DataIntegrityProof",
-      "cryptosuite": "ml-dsa-44-2025",
-      "verificationMethod": "did:web:masanork.github.io:weba#build-1766981918338-pqc",
+      "cryptosuite": "ml-dsa-44-jcs-2025",
+      "verificationMethod": "did:web:masanork.github.io:weba#build-1767016593200-pqc",
       "proofPurpose": "assertionMethod",
-      "proofValue": "e0fc4dbd4eed94a76903ff2cad7349b2ff55356e46e75673f44e57c217a3dcae61dfe5af329d1b0fa956c8c6586ebe912afffc45bab7bd34eb6f4b009c6d0b7c564fe3a84f02ceda6b0caaa320bddbff950b7be5b3395e1ba62b05219ce21790a98bcc1e4a8f2c35a9c98cc53351f7ba7b89b5a6efcea82cf97725e81d45818dcd4a4644d5d817a7f19d217bb954110cfb505c403f18c2a74d7c6d80bf21434078a54f22fe4e903f57f21b0e76186d4d0057b95a3aa67bf53ee813bc5f3de0a4a4029721cd8688f3115dc7b9a9d0715771475bb46bcdf2d6d70af368d6a1a3a311f2776cf4ba6556f8d908ec7a458ae2bed5d9df6e7b5e78bc6baa83e7fea5ab1270eef8c025844eaff1125e8305b199c2ef7300834c1db8977c1089a25f83dae7104024c5cfa979112a1e3eaf703dcc7f385be90bfc776f94c560bb2a0ecfec01eca6ae6efe3e8801d438d6737bb4a3d01bf440b3a925016827984825e63db2a69de14d989bd5379bf38fb9dabc2076ab402799b380ecb291e9eecb42d2709ee259989a49a852ca357254017a3fbf27088a045cb3c2340bffd75c6abd9ed27dd3f17f58d904649b74682122fc7ea72890519ea1ce22986feeb6f3bf0962e65f1924104857c957c66bad0cd36b43887d1d756906096a05c1fa325c8c55b01d4727947cfa9b974f059345c360b4ce4791b050f6fe196deabfc60d86ae2d96377f040e5dd9f6dac36c76d3e86556138a108b7fdc44042cfd44449b14806e1ce62e8272e36dc706b93f190741a99ccfdc4520504517f5fa8a1642abe725e1137fde21444e9315b0d3bccddaf81fe282b901161464066ea1084a7a01a2df5b932b37726e1897518cabdfbef0a8a466419ec933d4f60ec8c536d6d27c7b6c09829684aa13b8840d72441b205fa6c691f76275d51288aacabe9cf99f2bcaaf2b5d77fbc324f7afa5252e2ffff07ecdd2f699dc3d2fe8a7617c6b98f55258383b24714bfb992ab6dc58a1e18af8ba150c1a5a50b4484dfd68ea720f63aa1254472750c792abba5370482e277c4f50be0932c15b86abead271891ff3044cc25eac157ff7cee0320a3c8e10fa1d52b64b550bfbea43a2fdd10592424f77ceb04b49156188bf705c9886d60e24d74254ff018576720e241969392e97ec74dfde728e0c98c07a26735de26162ebe47f7304afd6681a5d805c1ba82b8b752db72b7d655725cafa35ced7cff69ee36875b06ada5474f73d9ec1d12e0f28420cfc6468efa0b54474e5b69b1f102f5ef5adda9850a58d69cb47180bcfc98753a609d0bf325c1831e4f518a70bd7122ab8bdfcc8d33952dc73114a668dd7f67ee5e21c5f1eff346174e0e80954adcc3c32b77330a0ddc26f7ec32fed1a3f29c58ee28d10f13929eb65ecce5d029208c95513aea0d8ff784f3a029b12659ce375013555239e4676658b27b7ee993cd4c45e7ee795b7ab0a95a6a21f4ab8f202a89022a92088a8dc90e4e2f677209b2d601cc060679e6ffff91f80a7cefeefcdda963fe5dfa9ba4408008b9555ea1c99971ebf68b72c818446bf57df5bf4e8b041f97a3ab0676ec64bc4a7ea9db889e7111213c4cac9fd8671dc45df16f3c4667ad8f30eb1284a1a6667140a061825f9324d3bfc2ae504793e3c746c8254dc17f260e4eb0a8c26ef1bf14d2573e1f076342f9bc8ca4194f11b2abd2ae3465e363b82c8b529b7b7b324f44a25765db14c282c1f37386881ba29c419635a3b82d09f11811d9aeda6ede9cbce0d5a08ea152badb5cddc708ba1306dcdae8571a12a93e801d8e5a72f7c9de9b72c0b6b11b55579b2adfb6c81dc89875d6c087d93cdf8d813d876c35cc9a2180f70c6a37869d6a3ccab85ecee19077cb083d20396d432e2e4504f0bea85ca3d2e9b3ed0bf941b1ca253825ef93d03b752513f5f7886895beb6e8b4c05f06c01dd34cea6a5f6ab5dd0fca652b452db0eaaa06d95c3a936327277ac498aa6018a217e53b2ffbfcba75557bb4708b25086d5652b2c514555a02e09dab31ee308a001f0ab4f51d258e9372679b8981a6567e6cb89f7f441b01e1332b578076ebd47453c22f82d893036958efd4e2ef8f49dec7afb8662a19a26a3bcd8757a194ff44628cda964d0364a54b4ed3346ab3a833c36bdfa8876506447e48427a9c9c2e381f89d9a3dc8ce1b33d9105692dc943a0f551e51822c1c8b5ac97d8ff38b70578d5f7587b72970a22fe6ed89ddea02e5862b4cec2072fc96e9917db450651a1b9f5b1794cf001c5f8750518c5d0d25976b3500b6e18765fef906cd250fc178cb7e0aaa70076da94813caa4b1bfe5961d81509bbc4843e06d3d028b2400b095f102bed6a62c7c638fa4b789ba5ce9800361336c9268402680e615e3dae3657ea789651eecac2a726e77fba8b3890789ff35f167459a62cebdfcde635c224b7afeea39e6c29d27407eb7a86de0a26f13788283eaaf070ce15e509bdd45ccae5d0dc3293a5737d607bb9d70155e80a2efc087faa581ae66e4f7963d42e16cf020effad0e416f603e8fd0e711a9032a772f7193137210936729ff1cbe60b8e9713dc3b97f9ec5672f09e21fbe29c58772f12e87ab3c6fb76f9e3f236b7cf91f7c1db8aea68d7a95b636f1341fe875b8edc2d999ffa69efa7c538155010ca4742ddd78f0222e2516fe23d8937b4dae79096909eb45f633d1e1784a91b01c04f272647113ed65aee66f2a1ca66045a6ffe931e3d1df910aaa61048373b06b88d342c882db0872b54b9e236a091367a32d53078d3435d568310c51266d57d8e943fbeed88b8cda3b3ffd09861e198b1a8c9590dac2f4e62c5ba3278da9ce19ff1ff16c7c1c65b03fd75f5a0869f564cc70fbcb7b8f0ba83115a7715ce4da90a83ae7d9e735a386f6e3f014df34d41c06f24f939f5c7fa6aae40338dff5776981ace1ec0d11932932816f608a981ab71907e6fc2f2ae698c405d418c1de50a16e0403e1b2a6a45f1240c879ef6f1105496e8bcb76c6c7c303514f7d7602b32f63a6250229aab01f3b3726d9b48b02b2094fced2e196b3d32ab921f320be09cfec542856ea7abff7eebc0032ceba7c7a24b260db82f23709728163a09a50f96d884534145621e3d168c5cd5d2dc42bc31d2db95f674f363173e2dafb35d85369ccfdf3cc5debd0af80b1b323624654732fa9d450424badba99156af5dfa9e812e55d052cf4fddaa1d4ef4b74f1c2c3925f570d05718af7b6bbc1cbdd2efc9c9caef30b69c4ff1992a0e61b63180fe104036b2f573f6148cd64e7c4833818258694c4803303d434574858d9495a1a6b3babdcde9033540476e8691b2bb021b36546186888c91aec7cfd9182243445169729ca4d0f3f8fafe0000000000000000000000000000000000000000000000000000000010192634"
+      "created": "2025-12-29T13:56:33.327Z",
+      "proofValue": "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"
     }
   ]
 }</pre>
@@ -134,22 +166,11 @@ body {
                 </div>
             </footer>
         </div>
-        <script id="weba-structure" type="application/json">{"@context":"https://schema.org","@type":"CreativeWork","fields":[],"tables":{},"masterData":{},"name":"Web/A L2 Keywrap Tool"}</script>
+        <script id="weba-structure" type="application/json">{"@context":"https://schema.org","@type":"CreativeWork","fields":[],"tables":{},"masterData":{}}</script>
         
         
         <script src="./assets/form-bundle.js"></script>
     
     </main>
-    <script>
-        (() => {
-            const lang = (navigator.language || '').toLowerCase();
-            const isJa = lang.startsWith('ja');
-            document.querySelectorAll('[data-i18n-ja]').forEach((el) => {
-                const ja = el.getAttribute('data-i18n-ja') || '';
-                const en = el.getAttribute('data-i18n-en') || ja;
-                el.textContent = isJa ? ja : en;
-            });
-        })();
-    </script>
 </body>
 </html>

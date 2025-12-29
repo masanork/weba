@@ -62,7 +62,36 @@ body {
         })();
     </script>
     
-</head>
+    <style>
+        /* Hide by default, show based on body class */
+        [data-lang-ja], [data-lang-en] { display: none !important; }
+        
+        .js-lang-ja [data-lang-ja] { display: contents !important; }
+        .js-lang-ja span[data-lang-ja], .js-lang-ja a[data-lang-ja], .js-lang-ja i[data-lang-ja] { display: inline !important; }
+        
+        .js-lang-en [data-lang-en] { display: contents !important; }
+        .js-lang-en span[data-lang-en], .js-lang-en a[data-lang-en], .js-lang-en i[data-lang-en] { display: inline !important; }
+    </style>
+    <script>
+        (() => {
+            const lang = (navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en';
+            if (lang === 'ja') {
+                document.documentElement.lang = 'ja';
+                document.documentElement.classList.add('js-lang-ja');
+            } else {
+                document.documentElement.lang = 'en';
+                document.documentElement.classList.add('js-lang-en');
+            }
+            // Backward compatibility for simple data-i18n replacements
+            window.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('[data-i18n-ja]').forEach((el) => {
+                    const ja = el.getAttribute('data-i18n-ja') || '';
+                    const en = el.getAttribute('data-i18n-en') || ja;
+                    el.textContent = lang === 'ja' ? ja : en;
+                });
+            });
+        })();
+    </script>
 </head>
 <body class="">
     <main>
@@ -84,7 +113,7 @@ body {
             <canvas id="weba-scatter" width="900" height="420" style="border: 1px solid #ddd; border-radius: 6px; background: #fff;"></canvas>
             <div id="weba-report-table" style="margin-top: 1rem; overflow-x: auto;"></div>
         </div>
-        <script id="weba-structure" type="application/json">{"@context":"https://schema.org","@type":"CreativeWork","fields":[{"key":"certificate.date","label":"証明日","type":"date"},{"key":"employer.name","label":"事業所名","type":"text"},{"key":"employer.representative","label":"代表者名","type":"text"},{"key":"employer.address","label":"所在地","type":"text"},{"key":"employer.phone","label":"電話番号","type":"text"},{"key":"employer.contact_name","label":"担当者名","type":"text"},{"key":"employer.contact_phone","label":"記載者連絡先","type":"text"},{"key":"employee.kana","label":"フリガナ","type":"text"},{"key":"employee.name","label":"本人氏名","type":"text"},{"key":"employee.birth_date","label":"生年月日","type":"date"},{"key":"employment.term","label":"雇用（予定）期間","type":"radio"},{"key":"employment.start_date","label":"雇用開始日","type":"date"},{"key":"employment.end_date","label":"雇用終了日（有期の場合）","type":"date"},{"key":"workplace.name","label":"名称","type":"text"},{"key":"workplace.address","label":"住所","type":"text"},{"key":"employment.industry","label":"業種","type":"datalist"},{"key":"employment.type","label":"雇用の形態","type":"datalist"},{"key":"variable.total_hours","label":"合計時間（時間/月）","type":"number"},{"key":"variable.unit","label":"単位","type":"radio"},{"key":"variable.work_days","label":"就労日数（日）","type":"number"},{"key":"variable.shift_time","label":"主な就労時間帯・シフト時間帯","type":"text"},{"key":"variable.break_minutes","label":"休憩時間（分）","type":"number"},{"key":"leave.maternity","label":"産前・産後休業","type":"radio"},{"key":"leave.maternity_start","label":"産前・産後開始日","type":"date"},{"key":"leave.maternity_end","label":"産前・産後終了日","type":"date"},{"key":"leave.childcare","label":"育児休業","type":"radio"},{"key":"leave.childcare_start","label":"育児休業開始日","type":"date"},{"key":"leave.childcare_end","label":"育児休業終了日","type":"date"},{"key":"leave.other","label":"産休・育休以外の休業","type":"radio"},{"key":"leave.other_reason","label":"理由","type":"radio"},{"key":"leave.other_reason_detail","label":"理由（その他）","type":"text"},{"key":"leave.other_start","label":"休業開始日","type":"date"},{"key":"leave.other_end","label":"休業終了日","type":"date"},{"key":"return.to_work","label":"復職","type":"radio"},{"key":"return.date","label":"復職（予定）年月日","type":"date"},{"key":"shorttime.use","label":"育児のための短時間勤務制度","type":"radio"},{"key":"shorttime.start","label":"期間（開始）","type":"date"},{"key":"shorttime.end","label":"期間（終了）","type":"date"},{"key":"shorttime.shift","label":"主な就労時間帯・シフト時間帯","type":"text"},{"key":"employment.nursery","label":"保育士等としての勤務実態","type":"radio"},{"key":"notes","label":"備考","type":"textarea"},{"key":"additional.tanshin","label":"就労の状況（単身赴任）","type":"radio"},{"key":"additional.tanshin_start","label":"期間（開始）","type":"date"},{"key":"additional.tanshin_end","label":"期間（終了）","type":"date"},{"key":"additional.employment_insurance","label":"雇用保険加入状況","type":"radio"},{"key":"additional.changed_work_days","label":"変更後の就労日数（週）","type":"number"},{"key":"child.name","label":"児童氏名","type":"text"},{"key":"child.birth_date","label":"生年月日","type":"date"},{"key":"child.address","label":"住所","type":"text"}],"tables":{"work_records":[{"key":"ym","label":"2025-01","type":"text"},{"key":"days","label":"days","type":"number"},{"key":"hours","label":"hours","type":"number"}]},"masterData":{"industry":[["業種"],["農業・林業"],["漁業"],["鉱業・採石業・砂利採取業"],["建設業"],["製造業"],["電気・ガス・熱供給・水道業"],["情報通信業"],["運輸業・郵便業"],["卸売業・小売業"],["金融業・保険業"],["不動産業・物品賃貸業"],["学術研究・専門・技術サービス業"],["宿泊業・飲食サービス業"],["生活関連サービス業・娯楽業"],["医療・福祉"],["教育・学習支援業"],["複合サービス事業"],["公務"],["その他"]],"employment_type":[["雇用形態"],["正社員"],["パート・アルバイト"],["派遣社員"],["契約社員"],["会計年度任用職員"],["非常勤・臨時職員"],["役員"],["自営業主"],["自営業専従者"],["家族従業者"],["内職"],["業務委託"],["その他"]]},"name":"就労証明書（世田谷区版）"}</script>
+        <script id="weba-structure" type="application/json">{"@context":"https://schema.org","@type":"CreativeWork","fields":[{"key":"certificate.date","label":"証明日","type":"date"},{"key":"employer.name","label":"事業所名","type":"text"},{"key":"employer.representative","label":"代表者名","type":"text"},{"key":"employer.address","label":"所在地","type":"text"},{"key":"employer.phone","label":"電話番号","type":"text"},{"key":"employer.contact_name","label":"担当者名","type":"text"},{"key":"employer.contact_phone","label":"記載者連絡先","type":"text"},{"key":"employee.kana","label":"フリガナ","type":"text"},{"key":"employee.name","label":"本人氏名","type":"text"},{"key":"employee.birth_date","label":"生年月日","type":"date"},{"key":"employment.term","label":"雇用（予定）期間","type":"radio"},{"key":"employment.start_date","label":"雇用開始日","type":"date"},{"key":"employment.end_date","label":"雇用終了日（有期の場合）","type":"date"},{"key":"workplace.name","label":"名称","type":"text"},{"key":"workplace.address","label":"住所","type":"text"},{"key":"employment.industry","label":"業種","type":"datalist"},{"key":"employment.type","label":"雇用の形態","type":"datalist"},{"key":"variable.total_hours","label":"合計時間（時間/月）","type":"number"},{"key":"variable.unit","label":"単位","type":"radio"},{"key":"variable.work_days","label":"就労日数（日）","type":"number"},{"key":"variable.shift_time","label":"主な就労時間帯・シフト時間帯","type":"text"},{"key":"variable.break_minutes","label":"休憩時間（分）","type":"number"},{"key":"leave.maternity","label":"産前・産後休業","type":"radio"},{"key":"leave.maternity_start","label":"産前・産後開始日","type":"date"},{"key":"leave.maternity_end","label":"産前・産後終了日","type":"date"},{"key":"leave.childcare","label":"育児休業","type":"radio"},{"key":"leave.childcare_start","label":"育児休業開始日","type":"date"},{"key":"leave.childcare_end","label":"育児休業終了日","type":"date"},{"key":"leave.other","label":"産休・育休以外の休業","type":"radio"},{"key":"leave.other_reason","label":"理由","type":"radio"},{"key":"leave.other_reason_detail","label":"理由（その他）","type":"text"},{"key":"leave.other_start","label":"休業開始日","type":"date"},{"key":"leave.other_end","label":"休業終了日","type":"date"},{"key":"return.to_work","label":"復職","type":"radio"},{"key":"return.date","label":"復職（予定）年月日","type":"date"},{"key":"shorttime.use","label":"育児のための短時間勤務制度","type":"radio"},{"key":"shorttime.start","label":"期間（開始）","type":"date"},{"key":"shorttime.end","label":"期間（終了）","type":"date"},{"key":"shorttime.shift","label":"主な就労時間帯・シフト時間帯","type":"text"},{"key":"employment.nursery","label":"保育士等としての勤務実態","type":"radio"},{"key":"notes","label":"備考","type":"textarea"},{"key":"additional.tanshin","label":"就労の状況（単身赴任）","type":"radio"},{"key":"additional.tanshin_start","label":"期間（開始）","type":"date"},{"key":"additional.tanshin_end","label":"期間（終了）","type":"date"},{"key":"additional.employment_insurance","label":"雇用保険加入状況","type":"radio"},{"key":"additional.changed_work_days","label":"変更後の就労日数（週）","type":"number"},{"key":"child.name","label":"児童氏名","type":"text"},{"key":"child.birth_date","label":"生年月日","type":"date"},{"key":"child.address","label":"住所","type":"text"}],"tables":{"work_records":[{"key":"ym","label":"2025-01","type":"text"},{"key":"days","label":"days","type":"number"},{"key":"hours","label":"hours","type":"number"}]},"masterData":{"industry":[["業種"],["農業・林業"],["漁業"],["鉱業・採石業・砂利採取業"],["建設業"],["製造業"],["電気・ガス・熱供給・水道業"],["情報通信業"],["運輸業・郵便業"],["卸売業・小売業"],["金融業・保険業"],["不動産業・物品賃貸業"],["学術研究・専門・技術サービス業"],["宿泊業・飲食サービス業"],["生活関連サービス業・娯楽業"],["医療・福祉"],["教育・学習支援業"],["複合サービス事業"],["公務"],["その他"]],"employment_type":[["雇用形態"],["正社員"],["パート・アルバイト"],["派遣社員"],["契約社員"],["会計年度任用職員"],["非常勤・臨時職員"],["役員"],["自営業主"],["自営業専従者"],["家族従業者"],["内職"],["業務委託"],["その他"]]}}</script>
         <script>
             const statusEl = document.getElementById('weba-report-status');
             const fileInput = document.getElementById('weba-report-files');
@@ -226,16 +255,5 @@ body {
         </script>
     
     </main>
-    <script>
-        (() => {
-            const lang = (navigator.language || '').toLowerCase();
-            const isJa = lang.startsWith('ja');
-            document.querySelectorAll('[data-i18n-ja]').forEach((el) => {
-                const ja = el.getAttribute('data-i18n-ja') || '';
-                const en = el.getAttribute('data-i18n-en') || ja;
-                el.textContent = isJa ? ja : en;
-            });
-        })();
-    </script>
 </body>
 </html>

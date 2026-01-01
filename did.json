@@ -12,25 +12,25 @@
       "publicKeyHex": "05c647223bba939b040a3696c869a217f91b2b8d71e3ff23dc1e267ed2255591"
     },
     {
-      "id": "did:web:masanork.github.io:weba#build-1767174623980-ed25519",
+      "id": "did:web:masanork.github.io:weba#build-1767249006627-ed25519",
       "type": "Ed25519VerificationKey2020",
       "controller": "did:web:masanork.github.io:weba",
-      "publicKeyHex": "0418df5bfeb8b48ee1772f32f363e24865d10b91a4b22fc80369b21ef2fb7f25"
+      "publicKeyHex": "43eb6b009de04fa1e028ebd9aa645a8fc9ec79349ac5b3b082f9be890704b47f"
     },
     {
-      "id": "did:web:masanork.github.io:weba#build-1767174623980-pqc",
+      "id": "did:web:masanork.github.io:weba#build-1767249006627-pqc",
       "type": "JsonWebKey2020",
       "controller": "did:web:masanork.github.io:weba",
       "publicKeyJwk": {
         "kty": "PQC",
         "crv": "ML-DSA-44",
-        "x": "1y9soLgriaD-Uw5Ptt5HrGk2Xw6I-J8wjA44SJMdIYT0-J_p_KX9GLZSXaUSwiRYfA_nzWLxS-n9lIETC-zjzvBNwjfTRm9ncKO2Om2wS6dK0z6JR4soTs_-8NXz8k0TI0iGeC4rufH5ntLPjkq9S-JraKEdkIquylM0MUsox3Norzvl1AVfeT__xvz8TBif8HX_ZouJTrRKDMXC2yRJ1MpqEGwAVFQLqMAWLTn0A7ESMJ8rwwpGIcCEs6fWFLaR_-WEL3YpxWzUZyaTdC0WCQJTsRaZzxi5byOMzFqsbvfc3DhN3ej02PcVMQAPnR0L86E7sbaIapRIvj6sFVWBt-3iqKEkAetYn9naa4fI6a_zaL83alSqeAJlI5LgWaiJ51Zosi2qyM1fCAzB7SWOnlAKvqPM0ZLlZoCgRKJmUeOxSnzWHp8Syyg6Y5No8CvGsHkWeiiWrCbABqzVWaZTw_cdF51K96wJby4sOyN7wUHC-pYCA_L8klWfK2evvXufCj1V017_mRg4hkM3JI6XY_GzfKJ6dJt8kz3tDEHW0pq2e4_9DPlHpB7s9cboU4c1N_Zc3THo3Dx2GU6ZxUkF0LjYn_EIfoANWSGocjbuakbGHfI71J7iygIOZBEDHeuTNqorqM7kTiosrT3_vAwXwRC7uwTzeZTzInyQve1I-PwT6eZu6WAq4mV38uBe_zE7cVaKBgXbRjQCni16_n8xpM0CYEj5zh7fhkfF5vhF4-no9ZLpubV3mKE48z1jNp0Ta7mUsCVUwaKTVyMzqC8nQ4DoIpwDjfIu5OOeZXgxqxCrMVvZlEADGY0Ucl9Sq1T_FB1bIpIhNwr5KCu5X8pWcePOfgDTNlQ59UCMfGfMnlGsMsZ5LyAoITCj5izH7Gp-WGNsxHRve25uSwBuE6qvyZBC97VUQKT28URrEeJVzwhbfpk62SoY8fNFeefq0P2Va0jL_mEtlmDmFgLnizNGYZCdEjaTHswATqSc4wsqkRZbi6RnT_GZhxLqkjq9ZQ5O6oWyvA9NLFa2pFmc5m1mB5yHcQfBMZWvzAjdHibNjwj9hup8onXeGheGnilHLNU0hPJo0WWV4BXYyiHw-gTXVPajT7cZShZj2Vl9nHqn8YpJrgfsbsMhE78ahVoACJsujrHSGKgTY8-SCurK2Ygwu3lt4-Hpz2o19qJYrw-ALFI0GlMxcD09jXHZPTqwntI25q-qlqWwXuykGKZbYeL1bL2r5YjHamiBsrwycvOBes9q1ip95ykpe8zjkJiHJReQ3tE7xTahA1ZyN4J4odPwy3SpdByIqMNOtJd7e-CcI3PS0qrcBv5tkC7kZNwgfeRs5QkAZ2Y8b287V2REK0a6VHOS0q_RFCLVEBuLsuhJ6gmYaqD_q_7ORg0zjdFXowCSel7JQtRn3QWGFOiXfayBL6LbS1BsOeqBv7alz3t48fljhHR4kaQPvlfhRn06uAEY4ZWRHnTw0w3ZNKBhLQZ_as9FVaSZ9qo3wab4eiUWCXd5ldnjAHUiZwStwWB_1-hNab4qehgSHr3lckG08igLto9I4CsN9VmI62yY8IheXDTkqtE5Dx6uPc0agGMadgRxI2mFBbDOEjsrz2auS8qF96CPHEfqKwqYnnDgRA9yoSP6XkN90D5uD6vg_u2JbA0itjSi4MBwq_D1d-a_4yL1VmrmMI7o3u_C8oOwgXnEZqAdNs1rj6VOBo68NcTRH654rcdc2aJ2LdPEv2Tzzr1q-A"
+        "x": "idXemp8syq9tFpRJr39kltlgLEnEc8Dso9-28wOnRHpSe554-Fa2bKQfv0mXO3ejz7XPjQgNyuugnZGFEWLNVQb5oqixXDelr8osQx-aAHfRauKSQflm6HvEdZOh8_8H_iu9MP4MGBJ5MRLyY3__-VWBS99qAmabR5xXmW8rD_pjsVGlvN76iF1a4NstEntE-CZ3HG5RWk-NtliNvO_zp8cocnio-0gnMFlcw6zXYnjLDEfX3EQLLMgmNbmBIGqPvomWjpsa9y2lnUhH9Sxp5o95o47r5c4qTvygOeNWs404cUKk2JzfHl2Vw8Doy85m4min0pl8XCoXnOzAbcezMQvfZ_0zJk5Q45YGpVASQqTPgccSoY4JU_pEx8vED8ScSlFIwGUxARl7Nf2apddr8X3rGd-A6knqIJQOFqMje4cbGkWof6h4IMfuLZUCGe69rHrJRtAcP3PV2Dup29P1MwmmzRw1LOG-ew3tO074wz2Wh39l0atDqUSVSeO7oNvjxvW8eL1cOAW3a5wJclBV6th6_t2YC_4O3HuSwLkwMxQt-M_5bS8fbiZaBnD3yUVaCwuJCKP070xKu9hfLzC9SSABBCuv7-0I_oX3aqpAHehtLLFw1w6FuAIepvrnacbdiqDZcnEqxijtPQ85F0y9QNAEkuMY6IPF0duHUK6ciNS0HU4IbY3RGv0cNworAmhV1lkA7WpHPY_6frET3L6zGp9yMTIwPPUi_mVCnm2VbeoW9sXtguf4UlYkxBG5eYZUBK2SsEUFs1mdB4F8gvTvV7bCh1hTm9og8UW-IM2eN3Gb2TQTjeZFAB7ApX-Exs7h3Xmk8Trtfm2TQjuEzOCA-yhhijMMc6cR0a3bpTylKbxY0rFdZsYvvCbO-XEmEb45VRdis2MqP8euWaEUAJ2OtIhXRFLSydW0HqxJtkDFp7J5tsSE1iZmDySUdaALcj8bd35VwI5FTev3ffJqY5-8wawA3UDm_qZzZRdGe47EacFCfkf6ElSADayxzieDK-OryC1o4rmbImmxJR7sjhWVw69YS5uAnvWXrdtJmdWhYV_ctjJ6h9_G0i6ZKI4slwJDTv_pRn4sVsJ0S36cH65rgWJZBC8M6IO6VIWx1kqGACQmOu5d4LfepVQKCOsqhCgkyQjI8tA_tzKrSViZNd_vQE4RzrNwyiFNTlLaFs6yfoLvz6fVfJuMrqgyLr3hawpeIM5DKUmIRUBdGSMMDNarLNlp_sNoZfVCZB8DCfRFG9wKfMjO_CAzogMHzb3tk3Drnggk1p5lFa3S_Udqu6w23vknBgTBFbAo4IC5YFc8_M-uKwz2S6omFofK8T6WV-jlax8DXykkMH8MsxAdzKcB76aQmXtMiv6pCJhbdh97XTQSgOGJu2rM8WGNBy3jGHu0EEoUVRuvL5ynN93U8xOFWFGhKXi2AQQY64vk5Wa7AafZu86ijtiC3vX7T4bVnXF00aoMlwDDHOhe_SX8ffPXsHUZnADrZ77nneONyawQv527WiN1qaEfOcdM2-1bsD3xGUqR1h3IPVEVWss-ZqjQdl3oVgzwN3rcnU5PDt7KSHm_rijwPRKuljVKqwpIE8oCgv_FHphIrgQ9eq9KbOAEPaPXgNG9MH8cEl3o3vb1BTRJ3JVbd1qkzRZc94kUwOrpVJXq8tRU4VJU_nj1FCPWxRu7OXqdiHNtRVZU1xSWBzhKxoOUx0KrrFvp45YTzIp_NVIWkY5aEbLoWWiY5zx7NA"
       }
     }
   ],
   "assertionMethod": [
     "did:web:masanork.github.io:weba#root-ed25519",
-    "did:web:masanork.github.io:weba#build-1767174623980-ed25519",
-    "did:web:masanork.github.io:weba#build-1767174623980-pqc"
+    "did:web:masanork.github.io:weba#build-1767249006627-ed25519",
+    "did:web:masanork.github.io:weba#build-1767249006627-pqc"
   ]
 }

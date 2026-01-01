@@ -12,13 +12,13 @@
       "publicKeyHex": "05c647223bba939b040a3696c869a217f91b2b8d71e3ff23dc1e267ed2255591"
     },
     {
-      "id": "did:web:masanork.github.io:weba#build-1767249593470-ed25519",
+      "id": "did:web:masanork.github.io:weba#build-1767250179753-ed25519",
       "type": "Ed25519VerificationKey2020",
       "controller": "did:web:masanork.github.io:weba",
       "publicKeyHex": "43eb6b009de04fa1e028ebd9aa645a8fc9ec79349ac5b3b082f9be890704b47f"
     },
     {
-      "id": "did:web:masanork.github.io:weba#build-1767249593470-pqc",
+      "id": "did:web:masanork.github.io:weba#build-1767250179753-pqc",
       "type": "JsonWebKey2020",
       "controller": "did:web:masanork.github.io:weba",
       "publicKeyJwk": {
@@ -30,7 +30,7 @@
   ],
   "assertionMethod": [
     "did:web:masanork.github.io:weba#root-ed25519",
-    "did:web:masanork.github.io:weba#build-1767249593470-ed25519",
-    "did:web:masanork.github.io:weba#build-1767249593470-pqc"
+    "did:web:masanork.github.io:weba#build-1767250179753-ed25519",
+    "did:web:masanork.github.io:weba#build-1767250179753-pqc"
   ]
 }
